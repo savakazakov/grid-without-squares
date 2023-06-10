@@ -38,6 +38,7 @@ A quick summary of what has happened so far:
     3. Now the plan is to solve it properly by integrating the validation process into the generation of candidates.
         
 **NOTES:**
+
     1. I'm absolutely sure this question has been asked before and has an optimal solution.
         a. I've tried to search for it for a while and the closed I've come to it is:
             i. "Moscow Paving Problem", "Squaring the square", "Squaring the Plane", "Maximal square-free subsets of point sets in the plane", "Square-free 2-colorings of the Plane", "Ramsay problem", "Square-free subset problem", "Maximal square-free packing problem", etc.
