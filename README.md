@@ -9,11 +9,13 @@ In a N x N grid/matrix what is the proportion of "X"s / "O"s when N goes up and 
 
 Quick little example for N = 2:
 
+**
 +-+-+                                                                   +-+-+
 |X|X| <----- Not a valid solution since. It forms a square.             |X|X|
 +-+-+                                                                   +-+-+
 |X|X|        Valid since it doesn't form any orthogonal squares. -----> |X|O|
 +-+-+                                                                   +-+-+
+**
 
 You can try and compute the optimal solutions for N = {1, 2, 3}. N = 3 would probably require a couple of seconds.
 But as soon as you go to N = 4 things get pretty hard to simulate in your head.
