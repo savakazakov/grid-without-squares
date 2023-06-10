@@ -10,7 +10,7 @@ import java.util.Arrays;
  * TODO: Explain that the next step is to generate only correct solutions.
  * TODO: I.e. bring the correctness of the solution into the generation process.
  */
-public class MoscowPavingProblem
+public class GridWithoutSquares
 {
     public static void main(String[] args)
     {
