@@ -17,80 +17,47 @@ public class GridWithoutSquares
 {
     public static void main(String[] args)
     {
-        // List<boolean[][]> cands2 = genCandsN(3, 3);
+        // Map<Integer, List<Square>> squares = genCellToSquaresMap(3);
 
-        // System.out.println(cands2.size());
-
-        // for (boolean[][] c : cands2)
-        // {
-        //     printSolution(c);
-        // }
+        // genSol(3);
 
         // boolean[][] first = new boolean[][]{ {true, true, true},
         //                                      {true, true, true},
         //                                      {true, true, false} };
 
-        // boolean[][] second = new boolean[][]{ {true, true, false},
-        //                                       {true, true, true},
-        //                                       {true, true, true} };
+        // boolean[] second = new boolean[]{true, true, true, false, true, true, true, true, false};
 
-        // boolean[][] third = new boolean[][]{ {true, true, false},
-        //                                       {true, true, true},
-        //                                       {true, true, true} };
+        int size = 3;
 
-        // ArrayList<boolean[][]> cands = new ArrayList<>();
-        // cands.add(first);
-        // cands.add(second);
-        // cands.add(third);
+        List<boolean[]> solutions = genSol(size);
 
-        // List<boolean[][]> candsResult = pruneCands(cands);
-
-        // for(boolean[][] c : candsResult)
-        // {
-        //     printSolution(c);
-        // }
-        
-        // System.out.println(chkUnique(first, second));
-
-        // int elmCtr = 0;
-        // List<boolean[][]> cands;
-
-        // for (int i = 2; i <= 5; i++)
-        // {
-        //     while (!pruneCands(genCandsN(i, ++elmCtr)).isEmpty());
-
-        //     cands = pruneCands(genCandsN(i, --elmCtr));
-
-        //     // for (boolean[][] c : cands)
-        //     //     printSolution(c);
-
-        //     // cands = pruneCands(cands);
-
-        //     // Print the maximum number of elements.
-        //     System.out.println("Max number of elements: " + elmCtr);
-
-        //     // Print the solutions.
-        //     for (boolean[][] c : cands)
-        //         printSolution(c);
-        // }
-
-        ///////////////////////////
-
-        Map<Integer, List<Square>> squares = genSquares(3);
-
-        for (Entry<Integer, List<GridWithoutSquares.Square>> e : squares.entrySet())
+        for (boolean[] s : solutions)
         {
-            System.out.println("The data for each cell - " + e.getKey());
-
-            for (Square s : e.getValue())
-            {
-                System.out.println("SquareID = " + s.squareID + " Vertex count = " + s.verticesCount);
-            }
-
-            System.out.println();
+            printSolution(oneDimToTwoDim(s, size));
         }
 
-        // System.out.println(squares.entrySet());
+        // printSolution(oneDimToTwoDim(second, 3));
+    }
+
+    /**
+     * TODO: Javadoc this.
+     * @param oneDim
+     * @param size
+     * @return
+     */
+    public static boolean[][] oneDimToTwoDim(boolean[] oneDim, int size)
+    {
+        boolean[][] twoDim = new boolean[size][size];
+
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                twoDim[i][j] = oneDim[i * size + j];
+            }
+        }
+
+        return twoDim;
     }
 
     /**
@@ -197,9 +164,56 @@ public class GridWithoutSquares
      * Attempt to integrate the validity of the solution with the generation process.
      * TODO: Finish this comment.
      */
-    public static void genSol(int size)
+    public static List<boolean[]> genSol(int size)
     {
+        Map<Integer, List<Square>> cellToSquares = genCellToSquaresMap(size);
+        List<boolean[]> sol = new ArrayList<>();
+        MaxElm maxElm = new MaxElm();
+        maxElm.val = 0;
 
+        genSolTR(0, 0, maxElm, new boolean[size * size], sol, cellToSquares);
+
+        return sol;
+    }
+
+    /**
+     * TODO: Finish this.
+     */
+    public static void genSolTR(int ctr, int curElm, MaxElm maxElm, boolean[] cand, List<boolean[]> sol, Map<Integer, List<Square>> cellToSquares)
+    {
+        // Recursion end condiditons.
+        if (ctr >= cand.length)
+        {
+            if (curElm > maxElm.val)
+            {
+                sol.clear();
+                sol.add(cand.clone());
+                maxElm.val = curElm;
+            }
+            else if (curElm == maxElm.val)
+                sol.add(cand.clone());
+
+            return;
+        }
+        
+        // Check if it is possible to place the element of interest in cell[ctr / size][ctr % size]. 
+        if (cellToSquares.get(ctr).stream().allMatch(square -> square.verticesCount < 3))
+        {
+            cand[ctr] = true;
+
+            // Update the ADT. TODO better comment.
+            cellToSquares.get(ctr).forEach(square -> square.verticesCount++);
+            genSolTR(++ctr, ++curElm, maxElm, cand, sol, cellToSquares);
+
+            // Reset to the state before the recursive call.
+            curElm--;
+            cand[--ctr] = false;
+            // Update the ADT. TODO better comment.
+            cellToSquares.get(ctr).forEach(square -> square.verticesCount--);
+        }
+
+        // Go ahead with 
+        genSolTR(++ctr, curElm, maxElm, cand, sol, cellToSquares);
     }
 
     /**
@@ -214,7 +228,7 @@ public class GridWithoutSquares
      * @param size - The size of the grid.
      * @return - A mapping between the cell ID and the list of square IDs.
      */
-    public static Map<Integer, List<Square>> genSquares(int size)
+    public static Map<Integer, List<Square>> genCellToSquaresMap(int size)
     {
         Map<Integer, List<Square>> squares = new HashMap<>();
         int itr = 0;
@@ -371,7 +385,6 @@ public class GridWithoutSquares
         return false;
     }
 
-
     /**
      * Check if two 2D arrays are not identical if the second is flipped along the diagonal.
      * @Note This assumes the 2D arrays are of the same dimensions.
@@ -451,5 +464,10 @@ public class GridWithoutSquares
             this.squareID = squareID;
             this.verticesCount = verticesCount;
         }
+    }
+
+    public static class MaxElm
+    {
+        public int val;
     }
 }
