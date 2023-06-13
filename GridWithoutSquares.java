@@ -1,14 +1,17 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
+ * A class that attempts to tackle the Grid without squares problem.
+ * @Note For full explanation of the problem please refer to the README.md file.
+ * @Note I'm assuming that the element of interest is "O". I.e., no 4 "O"s can to form a square.
+ * @Note An "O" corresponds to a boolean value of true.
  * 
- * TODO: Explain the problem here.
- * TODO: State assumptions here.
- * TODO: Explain the symbol of interest here and that it results to true in a boolean format.
- * TODO: Explain that the next step is to generate only correct solutions.
- * TODO: I.e. bring the correctness of the solution into the generation process.
+ * TODO: Make sure all methods are safe and I do parameter checking.
  */
 public class GridWithoutSquares
 {
@@ -49,27 +52,45 @@ public class GridWithoutSquares
         
         // System.out.println(chkUnique(first, second));
 
-        int elmCtr = 0;
-        List<boolean[][]> cands;
+        // int elmCtr = 0;
+        // List<boolean[][]> cands;
 
-        for (int i = 2; i <= 5; i++)
+        // for (int i = 2; i <= 5; i++)
+        // {
+        //     while (!pruneCands(genCandsN(i, ++elmCtr)).isEmpty());
+
+        //     cands = pruneCands(genCandsN(i, --elmCtr));
+
+        //     // for (boolean[][] c : cands)
+        //     //     printSolution(c);
+
+        //     // cands = pruneCands(cands);
+
+        //     // Print the maximum number of elements.
+        //     System.out.println("Max number of elements: " + elmCtr);
+
+        //     // Print the solutions.
+        //     for (boolean[][] c : cands)
+        //         printSolution(c);
+        // }
+
+        ///////////////////////////
+
+        Map<Integer, List<Square>> squares = genSquares(3);
+
+        for (Entry<Integer, List<GridWithoutSquares.Square>> e : squares.entrySet())
         {
-            while (!pruneCands(genCandsN(i, ++elmCtr)).isEmpty());
+            System.out.println("The data for each cell - " + e.getKey());
 
-            cands = pruneCands(genCandsN(i, --elmCtr));
+            for (Square s : e.getValue())
+            {
+                System.out.println("SquareID = " + s.squareID + " Vertex count = " + s.verticesCount);
+            }
 
-            // for (boolean[][] c : cands)
-            //     printSolution(c);
-
-            // cands = pruneCands(cands);
-
-            // Print the maximum number of elements.
-            System.out.println("Max number of elements: " + elmCtr);
-
-            // Print the solutions.
-            for (boolean[][] c : cands)
-                printSolution(c);
+            System.out.println();
         }
+
+        // System.out.println(squares.entrySet());
     }
 
     /**
@@ -170,6 +191,73 @@ public class GridWithoutSquares
         genCandsNTR(++ctr, ++numOfElmCtr, numOfElm, cand, cands);
         cand[(ctr - 1) / cand.length][(ctr - 1) % cand.length] = false;
         genCandsNTR(ctr, --numOfElmCtr, numOfElm, cand, cands);
+    }
+
+    /**
+     * Attempt to integrate the validity of the solution with the generation process.
+     * TODO: Finish this comment.
+     */
+    public static void genSol(int size)
+    {
+
+    }
+
+    /**
+     * TODO: Finish this comment.
+     * For all cells of the grid build a list of squares it is a vertex of.
+     * TODO: explain the ecoding of the cells and the encoding of the squares.
+     * explain how I don't care about the vertices itself and I don't need to store them.
+     * Also I can get them at the end using the formula, it massively simplifies the ADT.
+     * I only care if some square has all its verticies set to the element of interest.
+     * TODO: Explain the formula to find all of the squares.
+     * n * (n−1) * (2n−1) / 6 - the formula.
+     * @param size - The size of the grid.
+     * @return - A mapping between the cell ID and the list of square IDs.
+     */
+    public static Map<Integer, List<Square>> genSquares(int size)
+    {
+        Map<Integer, List<Square>> squares = new HashMap<>();
+        int itr = 0;
+
+        // It is more effecient to iterate through the squares, because
+        // for each square we add all 4 cell IDs. (the vertices)
+        for (int i = 2; i <= size; i++)
+        {
+            for (int j = 0; j <= size - i; j++)
+            {
+                for (int k = 0; k <= size - i; k++)
+                {
+                    // Create an instance of the current square.
+                    Square curSquare = new Square(itr++, 0);
+
+                    // Add the top left cell of the square.
+                    if (!squares.containsKey(size * j + k))
+                        squares.put(size * j + k, new ArrayList<>(List.of(curSquare)));
+                    else
+                        squares.get(size * j + k).add(curSquare);
+
+                    // Add the top right cell of the square.
+                    if (!squares.containsKey(size * j + k + i - 1))
+                        squares.put(size * j + k + i - 1, new ArrayList<>(List.of(curSquare)));
+                    else
+                        squares.get(size * j + k + i - 1).add(curSquare);
+
+                    // Add the bottom left cell of the square.
+                    if (!squares.containsKey(size * (j + i - 1) + k))
+                        squares.put(size * (j + i - 1) + k, new ArrayList<>(List.of(curSquare)));
+                    else
+                        squares.get(size * (j + i - 1) + k).add(curSquare);
+                    
+                    // Add the bottom right cell of the square.
+                    if (!squares.containsKey(size * (j + i - 1) + k + i - 1))
+                        squares.put(size * (j + i - 1) + k + i - 1, new ArrayList<>(List.of(curSquare)));
+                    else
+                        squares.get(size * (j + i - 1) + k + i - 1).add(curSquare);
+                }
+            }
+        }
+
+        return squares;
     }
 
     /**
@@ -348,5 +436,20 @@ public class GridWithoutSquares
         }
 
         return candsCopy;
+    }
+
+    /**
+     * TODO: Javadoc this.
+     */
+    public static class Square
+    {
+        public int squareID;
+        public int verticesCount;
+
+        public Square(int squareID, int verticesCount)
+        {
+            this.squareID = squareID;
+            this.verticesCount = verticesCount;
+        }
     }
 }
