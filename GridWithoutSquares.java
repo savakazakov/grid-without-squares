@@ -15,6 +15,8 @@ import java.util.HashMap;
  */
 public class GridWithoutSquares
 {
+    // public static int size = 0;
+
     public static void main(String[] args)
     {
         // Map<Integer, List<Square>> squares = genCellToSquaresMap(3);
@@ -27,13 +29,15 @@ public class GridWithoutSquares
 
         // boolean[] second = new boolean[]{true, true, true, false, true, true, true, true, false};
 
-        int size = 3;
+        int size = 5;
 
         List<boolean[]> solutions = genSol(size);
 
+        System.out.println(solutions.size());
+        
         for (boolean[] s : solutions)
         {
-            printSolution(oneDimToTwoDim(s, size));
+            printSolution(oneDimToTwoDim(s));
         }
 
         // printSolution(oneDimToTwoDim(second, 3));
@@ -45,8 +49,9 @@ public class GridWithoutSquares
      * @param size
      * @return
      */
-    public static boolean[][] oneDimToTwoDim(boolean[] oneDim, int size)
+    public static boolean[][] oneDimToTwoDim(boolean[] oneDim)
     {
+        int size = (int) Math.sqrt(oneDim.length);
         boolean[][] twoDim = new boolean[size][size];
 
         for (int i = 0; i < size; i++)
@@ -191,7 +196,10 @@ public class GridWithoutSquares
                 maxElm.val = curElm;
             }
             else if (curElm == maxElm.val)
-                sol.add(cand.clone());
+            {
+                if (sol.stream().allMatch(x -> chkUnique(oneDimToTwoDim(x), oneDimToTwoDim(cand))))
+                    sol.add(cand.clone());
+            }
 
             return;
         }
@@ -298,7 +306,7 @@ public class GridWithoutSquares
             middleLine = "";
         }
 
-        System.out.println(line);
+        System.out.println(line + "\n");
     }
 
     /**
