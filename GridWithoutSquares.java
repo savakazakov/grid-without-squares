@@ -15,8 +15,6 @@ import java.util.HashMap;
  */
 public class GridWithoutSquares
 {
-    // public static int size = 0;
-
     public static void main(String[] args)
     {
         // Map<Integer, List<Square>> squares = genCellToSquaresMap(3);
@@ -24,23 +22,41 @@ public class GridWithoutSquares
         // genSol(3);
 
         // boolean[][] first = new boolean[][]{ {true, true, true},
-        //                                      {true, true, true},
+        //                                      {false, true, true},
         //                                      {true, true, false} };
 
-        // boolean[] second = new boolean[]{true, true, true, false, true, true, true, true, false};
+        // boolean[] first = new boolean[]{false, true, true, true, true, true, true, true, true};
+        // boolean[] second = new boolean[]{true, true, true, true, true, true, true, true, false};
+
+        // System.out.println(chkUnique(first, second));
+
+        // return;
 
         int size = 5;
 
+        // Time the method.
+        long startTime = System.nanoTime();
+        genSol(size);
+        genSol(size);
+        genSol(size);
+        genSol(size);
+        genSol(size);
+        genSol(size);
+        genSol(size);
+        genSol(size);
+        genSol(size);
         List<boolean[]> solutions = genSol(size);
+        long endTime = System.nanoTime();
 
-        System.out.println(solutions.size());
+        long total = ((endTime - startTime) / 10) / 1000000;
+
+        // for (boolean[] s : solutions)
+        // {
+        //     printSolution(oneDimToTwoDim(s));
+        // }
         
-        for (boolean[] s : solutions)
-        {
-            printSolution(oneDimToTwoDim(s));
-        }
-
-        // printSolution(oneDimToTwoDim(second, 3));
+        System.out.println(solutions.size());
+        System.out.println("Performance: " + total);
     }
 
     /**
@@ -173,8 +189,7 @@ public class GridWithoutSquares
     {
         Map<Integer, List<Square>> cellToSquares = genCellToSquaresMap(size);
         List<boolean[]> sol = new ArrayList<>();
-        MaxElm maxElm = new MaxElm();
-        maxElm.val = 0;
+        MutableInteger maxElm = new MutableInteger(0);
 
         genSolTR(0, 0, maxElm, new boolean[size * size], sol, cellToSquares);
 
@@ -184,10 +199,10 @@ public class GridWithoutSquares
     /**
      * TODO: Finish this.
      */
-    public static void genSolTR(int ctr, int curElm, MaxElm maxElm, boolean[] cand, List<boolean[]> sol, Map<Integer, List<Square>> cellToSquares)
+    public static void genSolTR(int ctr, int curElm, MutableInteger maxElm, boolean[] cand, List<boolean[]> sol, Map<Integer, List<Square>> cellToSquares)
     {
         // Recursion end condiditons.
-        if (ctr >= cand.length)
+        if (ctr == cand.length)
         {
             if (curElm > maxElm.val)
             {
@@ -197,7 +212,7 @@ public class GridWithoutSquares
             }
             else if (curElm == maxElm.val)
             {
-                if (sol.stream().allMatch(x -> chkUnique(oneDimToTwoDim(x), oneDimToTwoDim(cand))))
+                if (sol.stream().allMatch(x -> chkUnique(x, cand)))
                     sol.add(cand.clone());
             }
 
@@ -225,14 +240,19 @@ public class GridWithoutSquares
     }
 
     /**
-     * TODO: Finish this comment.
-     * For all cells of the grid build a list of squares it is a vertex of.
-     * TODO: explain the ecoding of the cells and the encoding of the squares.
-     * explain how I don't care about the vertices itself and I don't need to store them.
-     * Also I can get them at the end using the formula, it massively simplifies the ADT.
-     * I only care if some square has all its verticies set to the element of interest.
-     * TODO: Explain the formula to find all of the squares.
-     * n * (n−1) * (2n−1) / 6 - the formula.
+     * Generate the ADT to hold the mapping between cells and the squares it belongs to.
+     * I.e. for all cells of the grid build a list of squares it is a vertex of.
+     * 
+     * Cells are indexed from 0 to @param size * @param size - 1, 
+     * from top left corner to bottom right.
+     * Squares are indexed from 0 to @param size * (@param size − 1) * (2@param size − 1) / 6.
+     * This formula is derived from the following series: 1 ^ 2 + 2 ^ 2 + 3 ^ 2 + ... + (n - 1) ^ 2,
+     * because there are (n - 1) ^ 2 squares of size 2 in an n by n grid, (n - 2) ^ 2 squares of size 3
+     * and so on.
+     * 
+     * The exact vertices are unimportant for this application, therefore, only their count is stored.
+     * They can be retrieved at the end using the squareID. This massively simplifies the ADT and the Square class.
+     * 
      * @param size - The size of the grid.
      * @return - A mapping between the cell ID and the list of square IDs.
      */
@@ -283,8 +303,9 @@ public class GridWithoutSquares
     }
 
     /**
-     * Print the solution as on the console. Where "O" is the symbol of interest or element.
+     * Print the solution as on the console. Where "O" is the element of interest.
      * I.e. no 4 elements are the vertices of a square.
+     * TODO: This should be rewritten to accept 1D flattened array.
      * @param solution - The 2D array that stores the solution.
      */
     public static void printSolution(boolean[][] sol)
@@ -298,9 +319,7 @@ public class GridWithoutSquares
             System.out.println(line);
             
             for (int j = 0; j < sol.length; j++)
-            {
                 middleLine += "|" + (sol[i][j] ? "O" : "X"); 
-            }
 
             System.out.println(middleLine + "|");
             middleLine = "";
@@ -310,11 +329,13 @@ public class GridWithoutSquares
     }
 
     /**
+     * @Deprecated
      * Perform a deep copy of a 2D array.
      * This is required since Java only does shallow cloning.
      * @param original - The 2D array to be deep copied.
      * @return - The copy of the 2D array.
      */
+    @Deprecated
     public static boolean[][] deepCopy(boolean[][] original)
     {
         if (original == null)
@@ -323,20 +344,20 @@ public class GridWithoutSquares
         final boolean[][] result = new boolean[original.length][];
 
         for (int i = 0; i < original.length; i++)
-        {
             result[i] = Arrays.copyOf(original[i], original[i].length);
-        }
 
         return result;
     }
 
     /**
+     * @Deprecated
      * Check if two 2D arrays are not identical.
      * @Note This assumes the 2D arrays are of the same dimensions.
      * @param sol - The proposed solution.
      * @param cand - The candidate.
      * @return - True if not identical and false otherwise.
      */
+    @Deprecated
     public static boolean chkIdent(boolean[][] sol, boolean[][] cand)
     {        
         for (int i = 0; i < sol.length; i++)
@@ -352,12 +373,33 @@ public class GridWithoutSquares
     }
 
     /**
-     * Check if two 2D arrays are not identical if the second is flipped horizontally.
+     * Method overload of chkIdent(boolean[][], boolean[][]).
+     * Check if two 1D flattened arrays are not identical.
+     * @Note This assumes the 1D arrays are of the same dimensions.
+     * @param sol - The proposed solution.
+     * @param cand - The candidate.
+     * @return - True if not identical and false otherwise.
+     */
+    public static boolean chkIdent(boolean[] sol, boolean[] cand)
+    {
+        for (int i = 0; i < sol.length; i++)
+        {
+            if (sol[i] != cand[i])
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @Deprecated
+     * Check if two 2D arrays are not identical, i.e., if the second is flipped horizontally.
      * @Note This assumes the 2D arrays are of the same dimensions.
      * @param sol - The proposed solution.
      * @param cand - The candidate.
      * @return - True if not identical and false otherwise.
      */
+    @Deprecated
     public static boolean chkIdentHor(boolean[][] sol, boolean[][] cand)
     {        
         for (int i = 0; i < sol.length; i++)
@@ -373,12 +415,35 @@ public class GridWithoutSquares
     }
 
     /**
+     * Method overload of chkIdentHor(boolean[][], boolean[][]).
+     * Check if two 1D flattened arrays not identical, i.e., if the second is flipped horizontally.
+     * @Note This assumes the 1D arrays are of the same dimensions.
+     * @param sol - The proposed solution.
+     * @param cand - The candidate.
+     * @return - True if not identical and false otherwise.
+     */
+    public static boolean chkIdentHor(boolean[] sol, boolean[] cand)
+    {
+        int size = (int) Math.sqrt(sol.length);
+
+        for (int i = 0; i < sol.length; i++)
+        {
+            if (sol[i] != cand[size - 1 - (i % size) + (i / size) * size])
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @Deprecated
      * Check if two 2D arrays are not identical if the second is flipped vertically.
      * @Note This assumes the 2D arrays are of the same dimensions.
      * @param sol - The proposed solution.
      * @param cand - The candidate.
      * @return - True if not identical and false otherwise.
      */
+    @Deprecated
     public static boolean chkIdentVert(boolean[][] sol, boolean[][] cand)
     {        
         for (int i = 0; i < sol.length; i++)
@@ -394,12 +459,38 @@ public class GridWithoutSquares
     }
 
     /**
+     * Method overload of chkIdentVert(boolean[][], boolean[][]).
+     * Check if two 1D flattened arrays not identical, i.e., if the second is flipped vertically.
+     * @Note This assumes the 1D arrays are of the same dimensions.
+     * @param sol - The proposed solution.
+     * @param cand - The candidate.
+     * @return - True if not identical and false otherwise.
+     */
+    public static boolean chkIdentVert(boolean[] sol, boolean[] cand)
+    {
+        int size = (int) Math.sqrt(sol.length);
+
+        for (int i = 0; i < sol.length; i++)
+        {
+            for (int j = 0; j < sol.length; j++)
+            {
+                if (sol[i] != cand[(size - 1 - i / size) * size + (i % size)])
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @Deprecated
      * Check if two 2D arrays are not identical if the second is flipped along the diagonal.
      * @Note This assumes the 2D arrays are of the same dimensions.
      * @param sol - The proposed solution.
      * @param cand - The candidate.
      * @return - True if not identical and false otherwise.
      */
+    @Deprecated
     public static boolean chkIdentDiag(boolean[][] sol, boolean[][] cand)
     {        
         for (int i = 0; i < sol.length; i++)
@@ -415,6 +506,26 @@ public class GridWithoutSquares
     }
 
     /**
+     * Method overload of chkIdentDiag(boolean[][], boolean[][]).
+     * Check if two 1D flattened arrays not identical, i.e., if the second flipped along the diagonal.
+     * @Note This assumes the 1D arrays are of the same dimensions.
+     * @param sol - The proposed solution.
+     * @param cand - The candidate.
+     * @return - True if not identical and false otherwise.
+     */
+    public static boolean chkIdentDiag(boolean[] sol, boolean[] cand)
+    {        
+        for (int i = 0; i < sol.length; i++)
+        {
+            if (sol[i] != cand[sol.length - i - 1])
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @Deprecated
      * Check if two 2D arrays are unique.
      * This means the second is not a flipped or rotated version of the first.
      * @Note This assumes the 2D arrays are of the same dimensions.
@@ -422,16 +533,32 @@ public class GridWithoutSquares
      * @param cand - The candidate.
      * @return - True if unique and false otherwise.
      */
+    @Deprecated
     public static boolean chkUnique(boolean[][] sol, boolean[][] cand)
     {
         return (chkIdent(sol, cand) && chkIdentHor(sol, cand) && chkIdentVert(sol, cand) && chkIdentDiag(sol, cand));
     }
 
     /**
-     * TODO: Finish this.
-     * @param cands
-     * @return
+     * Check if two 1D arrays are unique.
+     * This means the second is not a flipped or rotated version of the first.
+     * @Note This assumes the 1D arrays are of the same dimensions.
+     * @param sol - The proposed solution.
+     * @param cand - The candidate.
+     * @return - True if unique and false otherwise.
      */
+    public static boolean chkUnique(boolean[] sol, boolean[] cand)
+    {
+        return (chkIdent(sol, cand) && chkIdentHor(sol, cand) && chkIdentVert(sol, cand) && chkIdentDiag(sol, cand));
+    }
+
+    /**
+     * @Deprecated
+     * @param cands - The list of 2D arrays (candidates), which contain
+     * duplicate and invalid solutions.
+     * @return - The list with unique and valid solutions.
+     */
+    @Deprecated
     public static List<boolean[][]> pruneCands(List<boolean[][]> cands)
     {
         List<boolean[][]> candsCopy = new ArrayList<>(cands);
@@ -460,7 +587,12 @@ public class GridWithoutSquares
     }
 
     /**
-     * TODO: Javadoc this.
+     * Class wrap for a square in a 2D grid. This is needed because multiple cell (4 to be exact)
+     * can be the vertices of a square and they should all point to the same square, hence the
+     * need for an object.
+     * @implNote The squareID is not strictly needed, however, it helps retrieve the vertices of 
+     * square that have all 4 vertices set as the element of interest. A MutableInteger could be
+     * used instead.
      */
     public static class Square
     {
@@ -474,8 +606,16 @@ public class GridWithoutSquares
         }
     }
 
-    public static class MaxElm
+    /**
+     * Class wrap for an integer so that recursion could save its result through stack pops.
+     */
+    public static class MutableInteger
     {
+        public MutableInteger(int val)
+        {
+            this.val = val;
+        }
+
         public int val;
     }
 }

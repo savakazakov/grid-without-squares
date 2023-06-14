@@ -1,0 +1,25 @@
+Testing solution generation with integrated validation:
+
+Tests:
+    1. Testing if it is better to have the maxElm a primitive that is returned or reference to an Object
+        a. Test description: I'm using 10 consecutive getSol() (with size = 5) calls and I measure the average time spent for each case.
+        b. Results:
+            i. Test 1 for maxElm as primitive and returning the value - 662ms on Average over 10 calls.
+            ii. Test 2 for maxElm as primitive and returning the value - 671ms on Average over 10 calls.
+            iii. Test 3 for maxElm as primitive and returning the value - 607ms on Average over 10 calls.
+            iv. Test 4 for maxElm as primitive and returning the value - 647ms on Average over 10 calls.
+            v. Test 5 for maxElm as primitive and returning the value - 657ms on Average over 10 calls.
+            vi. Test 6 for maxElm as Object - 601ms on Average over 10 calls.
+            vii. Test 7 for maxElm as Object - 599ms on Average over 10 calls.
+            viii. Test 8 for maxElm as Object - 599ms on Average over 10 calls.
+            ix. Test 9 for maxElm as Object - 601ms on Average over 10 calls.
+            x. Test 10 for maxElm as Object - 606ms on Average over 10 calls.
+        c. Analysis: Having maxElm as an int and returning it results in an average call duration of 648.8ms over 50 calls, 
+        whereas having it as an Object results in an average call duration of 601.2ms.
+        d. Conclusion: Having it as an int is about 8% slower, therefore having it as an Object is prefered.
+    2. Testing if it is better two have the recursion aggregates as global variables.
+        a. Test description: I'm using the same 10 consecutive getSol() calls and I measure the average time spent for each case.
+        b. Results:
+            i. Test 1 with passing local variables: 650ms, 664ms, 642ms, 670ms, 647ms (654.6 average)
+            ii. Test 2 with global variables: 679ms, 700ms, 713ms, 657ms, 683ms (686.4 average)
+        Conclusion: It might be better to have local variables, but it might be due to the stress in the system at different times.
