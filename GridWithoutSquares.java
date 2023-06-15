@@ -7,7 +7,7 @@ import java.util.HashMap;
 /**
  * A class that attempts to tackle the Grid without squares problem.
  * @Note For full explanation of the problem please refer to the README.md file.
- * @Note I'm assuming that the element of interest is "O". I.e., no 4 "O"s can to form a square.
+ * @Note I'm assuming that the element of interest (EOI) is "O". I.e., no 4 "O"s can to form a square.
  * @Note An "O" corresponds to a boolean value of true.
  * 
  * TODO: Make sure all methods are safe and I do parameter checking.
@@ -25,31 +25,34 @@ public class GridWithoutSquares
 
         int size = 5;
         int times = 10;
-        List<boolean[]> solutions;
+        List<boolean[]> solutions = null;
 
-        // // Time the method.
-        // long startTime = System.nanoTime();
+        // Time the method.
+        long startTime = System.nanoTime();
 
-        // for (int i = 0; i < times; i++)
-        // {
-        //     solutions = genSol(5);
-        // }
+        for (int i = 0; i < times; i++)
+        {
+            solutions = genSol(size);
+        }
         
-        // long endTime = System.nanoTime();
+        long endTime = System.nanoTime();
 
-        // long total = ((endTime - startTime) / times) / 1000;
-        // System.out.println("Performance: " + total + " us");
+        long total = (endTime - startTime) / times;
+        System.out.println("Performance: " + total / 1000 + " ms, (" + total / 1000000 + "us)");
 
-        solutions = genSol(5);
+        // solutions = genSol(5);
 
         System.out.println(solutions.size());
+        oneDimToTwoDim(null);
     }
 
     /**
+     * @deprecated
      * Transform a 1D flattened array into a 2D grid.
      * @param oneDim - The 1D flattened array.
      * @return - The 2D grid.
      */
+    @Deprecated
     public static boolean[][] oneDimToTwoDim(boolean[] oneDim)
     {
         int size = (int) Math.sqrt(oneDim.length);
@@ -65,6 +68,7 @@ public class GridWithoutSquares
     }
 
     /**
+     * @deprecated
      * Checks if the candidate is a valid solution.
      * This uses recursion with a subset of the candidate,
      * hence the extra parameters.
@@ -74,6 +78,7 @@ public class GridWithoutSquares
      * @param y - The starting position on the second axis. (Default = 0)
      * @return - True if candidate is square free and false otherwise.
      */
+    @Deprecated
     public static boolean chkCand(boolean[][] cand, int size, int x, int y)
     {
         // The terminating condition.
@@ -94,6 +99,7 @@ public class GridWithoutSquares
     }
 
     /**
+     * @deprecated
      * Generate all possible permutations of all possible solutions
      * @param size - The size of the candidate 2D array.
      * @return - A 3D array of candidates.
@@ -122,13 +128,15 @@ public class GridWithoutSquares
     }
 
     /**
+     * @deprecated
      * Generate all possible permutations with 
      * repetitions with a specific number of elements.
      * @param size - The size of the candidate 2D array.
      * @param numOfElm - The desired number of Elm.
      * @return - A 3D array of candidates.
      */
-    public static List<boolean[][]> genCandsN(int size, int numOfElm)
+    @Deprecated
+     public static List<boolean[][]> genCandsN(int size, int numOfElm)
     {
         List<boolean[][]> cands = new ArrayList<>();
         genCandsNTR(0, 0, numOfElm, new boolean[size][size], cands);
@@ -137,14 +145,16 @@ public class GridWithoutSquares
     }
     
     /**
-     * An almost Tail Recursive algorithm, invoked of the genCands method.
+     * @deprecated
+     * An almost Tail Recursive algorithm, invoked by the genCands method.
      * @param ctr - The current index in the 2D array.
      * @param numOfElmCtr - The current number of elements.
      * @param numOfElm - The required number of elements.
      * @param cand - The accumulator candidate.
      * @param cands - The ADT to hold the candidates with numOfElm elements.
      */
-    public static void genCandsNTR(int ctr, int numOfElmCtr, int numOfElm, boolean[][] cand, List<boolean[][]> cands)
+    @Deprecated
+     public static void genCandsNTR(int ctr, int numOfElmCtr, int numOfElm, boolean[][] cand, List<boolean[][]> cands)
     {
         // Check if this candidate has the required number of elements.
         if (numOfElmCtr == numOfElm)
@@ -165,8 +175,13 @@ public class GridWithoutSquares
     }
 
     /**
-     * Attempt to integrate the validity of the solution with the generation process.
-     * TODO: Finish this comment.
+     * Generate a list of 1D flattened arrays, which are solutions for the 
+     * "Grid Without Squares" problem for a given size. This integrates the validation
+     * of the solution in the generation process.
+     * 
+     * @param size - The size of the solutions. E.g. size = 5 would give solutions for a 5 x 5 grid.
+     * @return - The list containing all valid unique solutions for the give size.
+     * @see chkUnique(boolean[], boolean[]) for a definition of unique.
      */
     public static List<boolean[]> genSol(int size)
     {
@@ -180,7 +195,13 @@ public class GridWithoutSquares
     }
 
     /**
-     * TODO: Finish this.
+     * An almost Tail Recursive algorithm, invoked by the genSol method (Middle recursion in reality).
+     * @param ctr - The current index in the 1D flattened accumulator array.
+     * @param curElm - The current number of EOIs.
+     * @param maxElm - The current maximum number of EOIs for a complete solution.
+     * @param cand - The accumulator candidate.
+     * @param sol - The list of solutions with maxElm EOIs.
+     * @param cellToSquares - ADT to hold the mapping between cells and the squares it belongs to.
      */
     public static void genSolTR(int ctr, int curElm, MutableInteger maxElm, boolean[] cand, List<boolean[]> sol, Map<Integer, List<Square>> cellToSquares)
     {
@@ -202,23 +223,26 @@ public class GridWithoutSquares
             return;
         }
         
-        // Check if it is possible to place the element of interest in cell[ctr / size][ctr % size]. 
+        // Check if it is possible to place the EOI in cell[ctr / size][ctr % size]. 
         if (cellToSquares.get(ctr).stream().allMatch(square -> square.verticesCount < 3))
         {
+            // First, set the cell to the EOI.
             cand[ctr] = true;
-
-            // Update the ADT. TODO better comment.
+            // Update all squares, which have this cell as a vertex.
             cellToSquares.get(ctr).forEach(square -> square.verticesCount++);
+            // Move on to the next cell.
             genSolTR(++ctr, ++curElm, maxElm, cand, sol, cellToSquares);
 
+            // Second, check if a solution would be optimal with this cell as not an EOI.
             // Reset to the state before the recursive call.
             curElm--;
             cand[--ctr] = false;
-            // Update the ADT. TODO better comment.
+            // Update the squares.
             cellToSquares.get(ctr).forEach(square -> square.verticesCount--);
         }
 
-        // Go ahead with 
+        // If it isn't possible or we already attemped the to have an EOI in this cell,
+        // try to set the cell as not an EOI.
         genSolTR(++ctr, curElm, maxElm, cand, sol, cellToSquares);
     }
 
@@ -279,7 +303,7 @@ public class GridWithoutSquares
     }
 
     /**
-     * Print the solution as on the console. Where "O" is the element of interest.
+     * Print the solution as on the console. Where "O" is the EOI.
      * I.e. no 4 elements are the vertices of a square.
      * TODO: This should be rewritten to accept 1D flattened array.
      * @param solution - The 2D array that stores the solution.
@@ -305,7 +329,7 @@ public class GridWithoutSquares
     }
 
     /**
-     * @Deprecated
+     * @deprecated
      * Perform a deep copy of a 2D array.
      * This is required since Java only does shallow cloning.
      * @param original - The 2D array to be deep copied.
@@ -326,7 +350,7 @@ public class GridWithoutSquares
     }
 
     /**
-     * @Deprecated
+     * @deprecated
      * Check if two 2D arrays are not identical.
      * @Note This assumes the 2D arrays are of the same dimensions.
      * @param sol - The proposed solution.
@@ -368,7 +392,7 @@ public class GridWithoutSquares
     }
 
     /**
-     * @Deprecated
+     * @deprecated
      * Check if two 2D arrays are not identical, i.e., if the second is flipped horizontally.
      * @Note This assumes the 2D arrays are of the same dimensions.
      * @param sol - The proposed solution.
@@ -412,7 +436,7 @@ public class GridWithoutSquares
     }
 
     /**
-     * @Deprecated
+     * @deprecated
      * Check if two 2D arrays are not identical if the second is flipped vertically.
      * @Note This assumes the 2D arrays are of the same dimensions.
      * @param sol - The proposed solution.
@@ -459,7 +483,7 @@ public class GridWithoutSquares
     }
 
     /**
-     * @Deprecated
+     * @deprecated
      * Check if two 2D arrays are not identical if the second is flipped along the diagonal.
      * @Note This assumes the 2D arrays are of the same dimensions.
      * @param sol - The proposed solution.
@@ -501,7 +525,7 @@ public class GridWithoutSquares
     }
 
     /**
-     * @Deprecated
+     * @deprecated
      * Check if two 2D arrays are unique.
      * This means the second is not a flipped or rotated version of the first.
      * @Note This assumes the 2D arrays are of the same dimensions.
@@ -529,7 +553,7 @@ public class GridWithoutSquares
     }
 
     /**
-     * @Deprecated
+     * @deprecated
      * @param cands - The list of 2D arrays (candidates), which contain
      * duplicate and invalid solutions.
      * @return - The list with unique and valid solutions.
@@ -567,7 +591,7 @@ public class GridWithoutSquares
      * can be the vertices of a square and they should all point to the same square, hence the
      * need for an object.
      * @implNote The squareID is not strictly needed, however, it helps retrieve the vertices of 
-     * square that have all 4 vertices set as the element of interest. A MutableInteger could be
+     * square that have all 4 vertices set as the EOI. A MutableInteger could be
      * used instead.
      */
     public static class Square
