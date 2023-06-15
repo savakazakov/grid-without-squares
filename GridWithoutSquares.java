@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -17,10 +16,6 @@ public class GridWithoutSquares
 {
     public static void main(String[] args)
     {
-        // Map<Integer, List<Square>> squares = genCellToSquaresMap(3);
-
-        // genSol(3);
-
         // boolean[][] first = new boolean[][]{ {true, true, true},
         //                                      {false, true, true},
         //                                      {true, true, false} };
@@ -28,42 +23,32 @@ public class GridWithoutSquares
         // boolean[] first = new boolean[]{false, true, true, true, true, true, true, true, true};
         // boolean[] second = new boolean[]{true, true, true, true, true, true, true, true, false};
 
-        // System.out.println(chkUnique(first, second));
-
-        // return;
-
         int size = 5;
+        int times = 10;
+        List<boolean[]> solutions;
 
-        // Time the method.
-        long startTime = System.nanoTime();
-        genSol(size);
-        genSol(size);
-        genSol(size);
-        genSol(size);
-        genSol(size);
-        genSol(size);
-        genSol(size);
-        genSol(size);
-        genSol(size);
-        List<boolean[]> solutions = genSol(size);
-        long endTime = System.nanoTime();
+        // // Time the method.
+        // long startTime = System.nanoTime();
 
-        long total = ((endTime - startTime) / 10) / 1000000;
-
-        // for (boolean[] s : solutions)
+        // for (int i = 0; i < times; i++)
         // {
-        //     printSolution(oneDimToTwoDim(s));
+        //     solutions = genSol(5);
         // }
         
+        // long endTime = System.nanoTime();
+
+        // long total = ((endTime - startTime) / times) / 1000;
+        // System.out.println("Performance: " + total + " us");
+
+        solutions = genSol(5);
+
         System.out.println(solutions.size());
-        System.out.println("Performance: " + total);
     }
 
     /**
-     * TODO: Javadoc this.
-     * @param oneDim
-     * @param size
-     * @return
+     * Transform a 1D flattened array into a 2D grid.
+     * @param oneDim - The 1D flattened array.
+     * @return - The 2D grid.
      */
     public static boolean[][] oneDimToTwoDim(boolean[] oneDim)
     {
@@ -73,9 +58,7 @@ public class GridWithoutSquares
         for (int i = 0; i < size; i++)
         {
             for (int j = 0; j < size; j++)
-            {
                 twoDim[i][j] = oneDim[i * size + j];
-            }
         }
 
         return twoDim;
@@ -260,6 +243,7 @@ public class GridWithoutSquares
     {
         Map<Integer, List<Square>> squares = new HashMap<>();
         int itr = 0;
+        Square curSquare;
 
         // It is more effecient to iterate through the squares, because
         // for each square we add all 4 cell IDs. (the vertices)
@@ -270,30 +254,22 @@ public class GridWithoutSquares
                 for (int k = 0; k <= size - i; k++)
                 {
                     // Create an instance of the current square.
-                    Square curSquare = new Square(itr++, 0);
+                    curSquare = new Square(itr++, 0);
 
-                    // Add the top left cell of the square.
-                    if (!squares.containsKey(size * j + k))
-                        squares.put(size * j + k, new ArrayList<>(List.of(curSquare)));
-                    else
+                    // Add the top left cell of the square.                    
+                    if (squares.putIfAbsent(size * j + k, new ArrayList<>(List.of(curSquare))) != null)
                         squares.get(size * j + k).add(curSquare);
 
-                    // Add the top right cell of the square.
-                    if (!squares.containsKey(size * j + k + i - 1))
-                        squares.put(size * j + k + i - 1, new ArrayList<>(List.of(curSquare)));
-                    else
+                    // Add the top right cell of the square.                    
+                    if (squares.putIfAbsent(size * j + k + i - 1, new ArrayList<>(List.of(curSquare))) != null)
                         squares.get(size * j + k + i - 1).add(curSquare);
 
                     // Add the bottom left cell of the square.
-                    if (!squares.containsKey(size * (j + i - 1) + k))
-                        squares.put(size * (j + i - 1) + k, new ArrayList<>(List.of(curSquare)));
-                    else
+                    if (squares.putIfAbsent(size * (j + i - 1) + k, new ArrayList<>(List.of(curSquare))) != null)
                         squares.get(size * (j + i - 1) + k).add(curSquare);
                     
                     // Add the bottom right cell of the square.
-                    if (!squares.containsKey(size * (j + i - 1) + k + i - 1))
-                        squares.put(size * (j + i - 1) + k + i - 1, new ArrayList<>(List.of(curSquare)));
-                    else
+                    if (squares.putIfAbsent(size * (j + i - 1) + k + i - 1, new ArrayList<>(List.of(curSquare))) != null)
                         squares.get(size * (j + i - 1) + k + i - 1).add(curSquare);
                 }
             }
