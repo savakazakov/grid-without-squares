@@ -23,27 +23,64 @@ public class GridWithoutSquares
         // boolean[] first = new boolean[]{false, true, true, true, true, true, true, true, true};
         // boolean[] second = new boolean[]{true, true, true, true, true, true, true, true, false};
 
-        int size = 5;
-        int times = 10;
-        List<boolean[]> solutions = null;
+        // int size = 2;
+        // int times = 10;
+        // List<boolean[]> solutions = null;
 
-        // Time the method.
-        long startTime = System.nanoTime();
+        // // Time the method.
+        // long startTime = System.nanoTime();
 
-        for (int i = 0; i < times; i++)
-        {
-            solutions = genSol(size);
-        }
+        // for (int i = 0; i < times; i++)
+        // {
+        //     solutions = genSol(size);
+        // }
         
-        long endTime = System.nanoTime();
+        // long endTime = System.nanoTime();
 
-        long total = (endTime - startTime) / times;
-        System.out.println("Performance: " + total / 1000 + " ms, (" + total / 1000000 + "us)");
+        // long total = (endTime - startTime) / times;
+        // System.out.println("Performance: " + total / 1000 + " ms, (" + total / 1000000 + "us)");
 
-        // solutions = genSol(5);
+        // // solutions = genSol(5);
 
-        System.out.println(solutions.size());
-        oneDimToTwoDim(null);
+        // System.out.println(solutions.size());
+
+        gridWithoutSquaresSequence(6);
+    }
+
+    /**
+     * TODO: Finish this.
+     */
+    public static void gridWithoutSquaresSequence(int maxSize)
+    {
+        int numOfEOI = 0;
+
+        for (int i = 2; i <= maxSize; i++)
+        {
+            // Generate the solutions.
+            List<boolean[]> solutions = genSol(i);
+
+            boolean[] sol = solutions.get(0);
+
+            // Reset the numOfEOI
+            numOfEOI = 0;
+
+            // Get the number of EOI.
+            for (int j = 0; j < sol.length; j++)
+            {
+                if (sol[j])
+                    numOfEOI++;
+            }
+
+            // Print the ratio.
+            System.out.println("Ratio: " + numOfEOI + " / " + i * i + " (" + (double) numOfEOI / (i * i) + ")");
+
+            // Print the first solution.
+            printSolution(oneDimToTwoDim(sol));
+
+            // Print how many unique solutions there are.
+            if (solutions.size() > 1)
+                System.out.println(" + " + (solutions.size() - 1) + " more unique solutions");
+        }
     }
 
     /**
@@ -104,6 +141,7 @@ public class GridWithoutSquares
      * @param size - The size of the candidate 2D array.
      * @return - A 3D array of candidates.
      */
+    @Deprecated
     public static boolean[][][] genCands(int size)
     {
         boolean[][][] cands = new boolean[(int) Math.pow(2, size * size)][size][size];

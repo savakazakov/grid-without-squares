@@ -38,6 +38,14 @@ With that I've slightly rephrased the original question:
     b. For reference for N = 4, takes few seconds let's say 5 seconds.
         i. If (2 ^ 16) takes 5 seconds, (2 ^ 25) would take (5 ^ 9) seconds or about 3.229 weeks!
 3. Now the plan is to solve it properly by integrating the validation process into the generation of candidates.
+    a. This has now been done, amongst other optimisations.
+4. With this I managed to produce the sequence of {1, 3, 7, 12, 17, ...}
+    a. With a quick search in an integer sequence database called OEIS, I found the original problem:
+        i. https://oeis.org/A227133
+    b. It turns out that this problem is pretty hard and even with modern computers and much more optimised algorithm than mine, people
+    have barely confirmed the solutions for N = 10.
+    c. I guess this means I should move on... Since the original proposer did that in 2016...
+        i. http://inversed.ru/InvMem.htm#InvMem_20:~:text=N20%20/%20Maximal%20density%20subsquare%2Dfree%20arrangements%20/%20%23Optimization%20%23OpenProblem%20/%202016.02.22
         
 ## **NOTES:**
 
@@ -49,3 +57,5 @@ With that I've slightly rephrased the original question:
 3. Please feel free to contribute with ideas or even better with algorithms.
 4. Ohh, and I presume you are thinking: "There is definitely a pattern here. What is this guy on about solution for N should be dependent on N - 1 or previous Ns. Boom easy recursion".
     a. I've thought about that, but I cannot prove rigorously that making a sub grid not optimal doesn't end up with a candidate grid with more elements of interest that is valid. (I.e., the proper solution)
+    b. Update: I know that this is not the case, since the solution for N = 5 contains 51 unique solutions and the solution for N = 4 is only 1, which mean that there will always be solutions that are not dependent on the previous (smaller) problems.
+5. Update: The original problem is called: "Maximal density subsquare-free arrangements" - by Peter Karpov, or originally formulated as "Given a square grid with side n consisting of n^2 cells (or points), a(n) is the maximum number of points that can be painted so that no four of the painted ones form a square with sides parallel to the grid." by the author - Heinrich Ludwig, Jul 06 2013.
