@@ -46,7 +46,15 @@ With that I've slightly rephrased the original question:
     have barely confirmed the solutions for N = 10.
     c. I guess this means I should move on... Since the original proposer did that in 2016...
         i. http://inversed.ru/InvMem.htm#InvMem_20:~:text=N20%20/%20Maximal%20density%20subsquare%2Dfree%20arrangements%20/%20%23Optimization%20%23OpenProblem%20/%202016.02.22
-        
+5. As of 26/06/2023 I introduced some optimisations. The most notable is that I introduced the following optimisation which solve the problem for N = {6, 7} in a reasonable amount of time. I'm checking if it possible to get to the current max EOI, given the current number of EOI. This is obvious, and I don't know why it took me this long to spot, but it trims the search tree significantly. Simply put, if the number of cells left to iterate trough is not enough to go match or surpass the current max of EOI, then you return immediately, since you cannot possibly find a solution there.
+    a. I have few new ideas of how to improve the efficiency:
+        i. Make sure all methods are safe and I do parameter checking.
+        ii. Implement concurrency using Thread Pools.
+        iii. Check assumption for paths in the grid. Clarification: I've noticed that for a lot of solutions there is a graph of orthogonally connected EOIs (that connects all EOIs), if this is somehow intrinsically true as a result of the nature of the problem, then this could be the crack in the problem that makes it possible to go beyond the results, described in the original problem. (https://oeis.org/A227133)
+        iv. Optimise my Java code.
+        v. Test again with global variables and stop passing them through the stack frames.
+6. I've also tried to translate my solution to C++, but without a lot of success. For a test with N = 4 and an average over 10 iterations, the average time spent is 289 ms for C++ and with Java it is 15 ms. Even if I use the -O3 flag in C++ the time spent is 38 ms, which is still quite a lot. After the optimisation for the possibility of the solution, I get 3381 us or about 3 ms with Java. I guess the takeaway point is that my C++ is very unoptimised.
+
 ## **NOTES:**
 
 1. I'm absolutely sure this question has been asked before and has an optimal solution.

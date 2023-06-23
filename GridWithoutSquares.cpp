@@ -10,17 +10,19 @@
 using namespace std;
 using namespace std::chrono;
 
+#define DEBUG
+
 void gridWithoutSquaresSequence(int maxSize);
-vector<vector<bool>> genSol(int size);
-void genSolTR(int ctr, int curElm, int *maxElm, vector<bool> cand, vector<vector<bool>>* sol, std::map<int, vector<int *> *> cellToSquares);
+vector<vector<bool>*> genSol(int size);
+void genSolTR(int ctr, int curElm, int* maxElm, vector<bool>* cand, vector<vector<bool>*>* sol, std::map<int, vector<int *> *> cellToSquares);
 std::map<int, vector<int*>*> genCellToSquaresMap(int size);
-void printSolution(vector<bool> sol);
+void printSolution(vector<bool>* sol);
 string repeat(string s, int n);
-bool chkIdent(vector<bool> sol, vector<bool> cand);
-bool chkIdentHor(vector<bool> sol, vector<bool> cand);
-bool chkIdentVert(vector<bool> sol, vector<bool> cand);
-bool chkIdentDiag(vector<bool> sol, vector<bool> cand);
-bool chkUnique(vector<bool> sol, vector<bool> cand);
+bool chkIdent(vector<bool>* sol, vector<bool>* cand);
+bool chkIdentHor(vector<bool>* sol, vector<bool>* cand);
+bool chkIdentVert(vector<bool>* sol, vector<bool>* cand);
+bool chkIdentDiag(vector<bool>* sol, vector<bool>* cand);
+bool chkUnique(vector<bool>* sol, vector<bool>* cand);
 
 /**
  * A class that attempts to tackle the Grid without squares problem.
@@ -32,111 +34,24 @@ bool chkUnique(vector<bool> sol, vector<bool> cand);
  * TODO: Fix comments from Java to C++.
  */
 int main()
-{
-    // boolean[][] first = new boolean[][]{ {true, true, true},
-    //                                      {false, true, true},
-    //                                      {true, true, false} };
-
-    // boolean[] first = new boolean[]{false, true, true, true, true, true, true, true, true};
-    // boolean[] second = new boolean[]{true, true, true, true, true, true, true, true, false};
-
-    // std::map<int, std::vector<int*>*> map = genCellToSquaresMap(2);
-
-    // // Increment the first int value of the vector associated with the first key
-    // if (!map.empty())
-    // {
-    //     auto it = map.begin();                      // Iterator pointing to the first key-value pair
-    //     std::vector<int *> *vectorPtr = it->second; // Pointer to the vector
-
-    //     if (!vectorPtr->empty())
-    //     {
-    //         (**vectorPtr->begin())++;              // Increment the first int value
-    //     }
-    // }
-
-    // // Print the map
-    // for (const auto &pair : map)
-    // {
-    //     std::cout << "Key: " << pair.first << std::endl;
-    //     std::cout << "Values: ";
-
-    //     const std::vector<int *> *values = pair.second;
-    //     for (const auto &value : *values)
-    //     {
-    //         std::cout << *value << " ";
-    //         // printf("%p - addr \n", value);
-    //     }
-    //     std::cout << std::endl;
-    // }
-
-    // std::map<int, std::vector<int*>*> map = genCellToSquaresMap(2);
-
-    // Increment the first int value of the vector associated with the first key
-    // if (!map.empty())
-    // {
-    //     auto it = map.begin();                      // Iterator pointing to the first key-value pair
-    //     std::vector<int *> *vectorPtr = it->second; // Pointer to the vector
-
-    //     if (!vectorPtr->empty())
-    //     {
-    //         (**vectorPtr->begin())++;              // Increment the first int value
-    //     }
-    // }
-
-    // Increment the first int value of the vector associated with the first key
-    // if (!map.empty())
-    // {
-    //     auto it = map.begin();                      // Iterator pointing to the first key-value pair
-    //     std::vector<int *> *vectorPtr = it->second; // Pointer to the vector
-
-    //     if (!vectorPtr->empty())
-    //     {
-    //         (**vectorPtr->begin())++; // Increment the first int value
-    //     }
-    // }
-
-    // Increment the first int value of the vector associated with the first key
-    // if (!map.empty())
-    // {
-    //     auto it = map.begin();                      // Iterator pointing to the first key-value pair
-    //     std::vector<int *> *vectorPtr = it->second; // Pointer to the vector
-
-    //     if (!vectorPtr->empty())
-    //     {
-    //         (**vectorPtr->begin())++; // Increment the first int value
-    //     }
-    // }
-
-    // if (std::all_of(map[0]->begin(), map[0]->end(), [&](int *x){ return *x < 3; }))
-    // {
-    //     std::cout << "YES 0";
-    // }
-
-
-    int size = 2;
+{    
+    int size = 4;
     int times = 10;
 
     // Get starting timepoint.
     auto start = high_resolution_clock::now();
 
-    // for (int i = 0; i < times; i++)
-    // {
-    //     std::vector<vector<bool>> solutions = genSol(size);
-    // }
+    for (int i = 0; i < times; i++)
+    {
+        std::vector<vector<bool>*> solutions = genSol(size);
+    }
 
-    std::vector<vector<bool>> sol = genSol(3);
-    std::cout << "Checkpoint!" << sol.size() <<std::endl;
-    sol[0];
-    std::cout << "Debug 0" << std::endl;
+    // Get ending timepoint.
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
 
-    printSolution(sol[0]);
-    // std::cout << "Debug END" << std::endl;
-
-    // // Get ending timepoint.
-    // auto stop = high_resolution_clock::now();
-    // auto duration = duration_cast<microseconds>(stop - start);
-
-    // std::cout << "Time taken by function: " << duration.count() << " microseconds" << endl;
+    std::cout << "Testing: N = " << size << ", " << times << " times" << std::endl;
+    std::cout << "Average performance: " << duration.count() / times / 1000 << " ms, (" << duration.count() / times << " us)" << std::endl;
 
     // gridWithoutSquaresSequence(6);
 }
@@ -152,17 +67,17 @@ void gridWithoutSquaresSequence(int maxSize)
     {
         const int size = i;
         // Generate the solutions.
-        std::vector<vector<bool>> solutions = genSol(i);
+        std::vector<vector<bool>*> solutions = genSol(i);
 
-        vector<bool> sol = solutions[0];
+        vector<bool>* sol = solutions[0];
 
         // Reset the numOfEOI
         numOfEOI = 0;
 
         // Get the number of EOI.
-        for (int j = 0; j < sol.size(); j++)
+        for (int j = 0; j < sol->size(); j++)
         {
-            if (sol[j])
+            if ((*sol)[j])
                 numOfEOI++;
         }
 
@@ -187,20 +102,15 @@ void gridWithoutSquaresSequence(int maxSize)
  * @return - The list containing all valid unique solutions for the give size.
  * @see chkUnique(boolean[], boolean[]) for a definition of unique.
  */
-vector<vector<bool>> genSol(int size)
+vector<vector<bool>*> genSol(int size)
 {
     std::map<int, vector<int*>*> cellToSquares = genCellToSquaresMap(size);
-    // std::cout << "Debug genCellToSquaresMap size = " << cellToSquares.size() << std::endl;
-
-    vector<vector<bool>> sol;
-    std::cout << "Debug sol.size() = "<< sol.size() << std::endl;
+    vector<vector<bool>*> sol;
     int* maxElm = new int(0);
 
-    genSolTR(0, 0, maxElm, vector<bool>(size * size), &sol, cellToSquares);
+    genSolTR(0, 0, maxElm, new vector<bool>(size * size), &sol, cellToSquares);
 
     delete maxElm;
-
-    std::cout << "Debug sol.size() = "<< sol.size() << std::endl;
 
     return sol;
 }
@@ -214,38 +124,31 @@ vector<vector<bool>> genSol(int size)
  * @param sol - The list of solutions with maxElm EOIs.
  * @param cellToSquares - ADT to hold the mapping between cells and the squares it belongs to.
  */
-void genSolTR(int ctr, int curElm, int *maxElm, vector<bool> cand, vector<vector<bool>>* sol, std::map<int, vector<int *> *> cellToSquares)
+void genSolTR(int ctr, int curElm, int *maxElm, vector<bool>* cand, vector<vector<bool>*>* sol, std::map<int, vector<int *> *> cellToSquares)
 {
-    // std::cout << "Debug cand.size() = " << cand.size() << std::endl;
     // Recursion end condiditons.
-    if (ctr == cand.size())
+    if (ctr == cand->size())
     {
         if (curElm > *maxElm)
         {
-            // std::cout << "Debug in curElm > *maxElm" << std::endl;
             sol->clear();
-            sol->push_back(vector<bool>(cand));
+            sol->push_back(new vector<bool>(*cand));
             *maxElm = curElm;
-            std::cout << "Debug sol.size() = " << sol->size() << std::endl;
-
-            std::cout << "Debug *maxElm = " << *maxElm << std::endl;
         }
         else if (curElm == *maxElm)
         {
-            // std::cout << "Debug in else if (curElm == *maxElm)" << std::endl;
-            if (std::all_of(sol->begin(), sol->end(), [&](vector<bool> x){ return chkUnique(x, cand); }))
-                sol->push_back(vector<bool>(cand));
+            if (std::all_of(sol->begin(), sol->end(), [&](vector<bool>* x){ return chkUnique(x, cand); }))
+                sol->push_back(new vector<bool>(*cand));
         }
 
         return;
     }
-    
+
     // Check if it is possible to place the EOI in cell[ctr / size][ctr % size].
     if (std::all_of(cellToSquares[ctr]->begin(), cellToSquares[ctr]->end(), [&](int* x){ return *x < 3; }))
     {
-        // std::cout << "ctr - " << ctr << " Count - " << **(cellToSquares[ctr]->begin()) << std::endl;
         // First, set the cell to the EOI.
-        cand[ctr] = 1;
+        (*cand)[ctr] = 1;
 
         // Update all squares, which have this cell as a vertex.
         for (int* vert : *cellToSquares[ctr])
@@ -257,7 +160,7 @@ void genSolTR(int ctr, int curElm, int *maxElm, vector<bool> cand, vector<vector
         // Second, check if a solution would be optimal with this cell as not an EOI.
         // Reset to the state before the recursive call.
         curElm--;
-        cand[--ctr] = 0;
+        (*cand)[--ctr] = 0;
 
         // Update the squares.
         for (int *vert : *cellToSquares[ctr])
@@ -289,7 +192,6 @@ void genSolTR(int ctr, int curElm, int *maxElm, vector<bool> cand, vector<vector
 std::map<int, vector<int*>*> genCellToSquaresMap(int size)
 {
     std::map<int, vector<int*>*> squares;
-    int itr = 0;
     int* curSquare;
 
     // It is more effecient to iterate through the squares, because
@@ -301,35 +203,23 @@ std::map<int, vector<int*>*> genCellToSquaresMap(int size)
             for (int k = 0; k <= size - i; k++)
             {
                 // Create an instance of the current square.
-                curSquare = new int(itr++);
+                curSquare = new int(0);
 
-                // Add the top left cell of the square.                    
-                if (squares.try_emplace(size * j + k, new vector<int*>(0, curSquare)).second)
-                // {
-                //     std::cout << "If 1" << std::endl;
+                // Add the top left cell of the square.
+                if (!squares.try_emplace(size * j + k, new vector<int*>(1, curSquare)).second)
                     (*squares[size * j + k]).push_back(curSquare);
-                // }
 
                 // Add the top right cell of the square.
-                if (squares.try_emplace(size * j + k + i - 1, new vector<int*>(0, curSquare)).second)
-                // {
-                //     std::cout << "If 2" << std::endl;
+                if (!squares.try_emplace(size * j + k + i - 1, new vector<int*>(1, curSquare)).second)
                     (*squares[size * j + k + i - 1]).push_back(curSquare);
-                // }
 
                 // Add the bottom left cell of the square.
-                if (squares.try_emplace(size * (j + i - 1) + k, new vector<int*>(0, curSquare)).second)
-                // {
-                //     std::cout << "If 3" << std::endl;
+                if (!squares.try_emplace(size * (j + i - 1) + k, new vector<int*>(1, curSquare)).second)
                     (*squares[size * (j + i - 1) + k]).push_back(curSquare);
-                // }
                 
                 // Add the bottom right cell of the square.
-                if (squares.try_emplace(size * (j + i - 1) + k + i - 1, new vector<int*>(0, curSquare)).second)
-                // {
-                //     std::cout << "If 4" << std::endl;
+                if (!squares.try_emplace(size * (j + i - 1) + k + i - 1, new vector<int*>(1, curSquare)).second)
                     (*squares[size * (j + i - 1) + k + i - 1]).push_back(curSquare);
-                // }
             }
         }
     }
@@ -343,14 +233,12 @@ std::map<int, vector<int*>*> genCellToSquaresMap(int size)
  * TODO: This should be rewritten to accept 1D flattened array.
  * @param solution - The 2D array that stores the solution.
  */
-void printSolution(vector<bool> sol)
+void printSolution(vector<bool>* sol)
 {
-    int size = sqrt(sol.size());
+    int size = sqrt(sol->size());
 
-    std::cout << "Debug 1" << std::endl;
     // Initialise the strings to be used in the printing.
     string line = "+" + repeat("-+", size);
-    std::cout << "Debug 2" << std::endl;
     string middleLine = "";
 
     for (int i = 0; i < size; i++)
@@ -359,7 +247,7 @@ void printSolution(vector<bool> sol)
 
         for (int j = 0; j < size; j++)
         {
-            middleLine += "|" + (string)(sol[i * size + j] ? "O" : "X");
+            middleLine += "|" + (string)((*sol)[i * size + j] ? "O" : "X");
         }
 
         std::cout << middleLine + "|" << std::endl;
@@ -390,11 +278,11 @@ string repeat(string s, int n)
  * @param cand - The candidate.
  * @return - True if not identical and false otherwise.
  */
-bool chkIdent(vector<bool> sol, vector<bool> cand)
+bool chkIdent(vector<bool>* sol, vector<bool>* cand)
 {
-    for (int i = 0; i < sol.size(); i++)
+    for (int i = 0; i < sol->size(); i++)
     {
-        if (sol[i] != cand[i])
+        if ((*sol)[i] != (*cand)[i])
             return true;
     }
 
@@ -409,13 +297,13 @@ bool chkIdent(vector<bool> sol, vector<bool> cand)
  * @param cand - The candidate.
  * @return - True if not identical and false otherwise.
  */
-bool chkIdentHor(vector<bool> sol, vector<bool> cand)
+bool chkIdentHor(vector<bool>* sol, vector<bool>* cand)
 {
-    int size = (int) sqrt(sol.size());
+    int size = (int) sqrt(sol->size());
 
-    for (int i = 0; i < sol.size(); i++)
+    for (int i = 0; i < sol->size(); i++)
     {
-        if (sol[i] != cand[size - 1 - (i % size) + (i / size) * size])
+        if ((*sol)[i] != (*cand)[size - 1 - (i % size) + (i / size) * size])
             return true;
     }
 
@@ -430,15 +318,15 @@ bool chkIdentHor(vector<bool> sol, vector<bool> cand)
  * @param cand - The candidate.
  * @return - True if not identical and false otherwise.
  */
-bool chkIdentVert(vector<bool> sol, vector<bool> cand)
+bool chkIdentVert(vector<bool>* sol, vector<bool>* cand)
 {
-    int size = (int) sqrt(sol.size());
+    int size = (int) sqrt(sol->size());
 
-    for (int i = 0; i < sol.size(); i++)
+    for (int i = 0; i < sol->size(); i++)
     {
-        for (int j = 0; j < sol.size(); j++)
+        for (int j = 0; j < sol->size(); j++)
         {
-            if (sol[i] != cand[(size - 1 - i / size) * size + (i % size)])
+            if ((*sol)[i] != (*cand)[(size - 1 - i / size) * size + (i % size)])
                 return true;
         }
     }
@@ -454,11 +342,11 @@ bool chkIdentVert(vector<bool> sol, vector<bool> cand)
  * @param cand - The candidate.
  * @return - True if not identical and false otherwise.
  */
-bool chkIdentDiag(vector<bool> sol, vector<bool> cand)
+bool chkIdentDiag(vector<bool>* sol, vector<bool>* cand)
 {        
-    for (int i = 0; i < sol.size(); i++)
+    for (int i = 0; i < sol->size(); i++)
     {
-        if (sol[i] != cand[sol.size() - i - 1])
+        if ((*sol)[i] != (*cand)[sol->size() - i - 1])
             return true;
     }
 
@@ -473,7 +361,7 @@ bool chkIdentDiag(vector<bool> sol, vector<bool> cand)
  * @param cand - The candidate.
  * @return - True if unique and false otherwise.
  */
-bool chkUnique(vector<bool> sol, vector<bool> cand)
+bool chkUnique(vector<bool>* sol, vector<bool>* cand)
 {
     return (chkIdent(sol, cand) && chkIdentHor(sol, cand) && chkIdentVert(sol, cand) && chkIdentDiag(sol, cand));
 }

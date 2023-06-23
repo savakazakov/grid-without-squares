@@ -11,6 +11,10 @@ import java.util.HashMap;
  * @Note An "O" corresponds to a boolean value of true.
  * 
  * TODO: Make sure all methods are safe and I do parameter checking.
+ * TODO: Thread Pools
+ * TODO: Check assumption for paths in the grid
+ * TODO: Optimise Java
+ * TODO: Test again with globals.
  */
 public class GridWithoutSquares
 {
@@ -23,28 +27,29 @@ public class GridWithoutSquares
         // boolean[] first = new boolean[]{false, true, true, true, true, true, true, true, true};
         // boolean[] second = new boolean[]{true, true, true, true, true, true, true, true, false};
 
-        int size = 2;
-        int times = 10;
-        List<boolean[]> solutions = null;
+        // int size = 4;
+        // int times = 10;
+        // List<boolean[]> solutions = null;
 
-        // Time the method.
-        long startTime = System.nanoTime();
+        // // Time the method.
+        // long startTime = System.nanoTime();
 
-        for (int i = 0; i < times; i++)
-        {
-            solutions = genSol(size);
-        }
+        // for (int i = 0; i < times; i++)
+        // {
+        //     solutions = genSol(size);
+        // }
+
+        // // solutions = genSol(size);
+        // // printSolution(oneDimToTwoDim(solutions.get(0)));
         
-        long endTime = System.nanoTime();
+        // long endTime = System.nanoTime();
 
-        long total = (endTime - startTime) / times;
-        System.out.println("Performance: " + total / 1000 + " ms, (" + total / 1000000 + "us)");
+        // long total = (endTime - startTime) / times;
 
-        // solutions = genSol(5);
+        // System.out.println("Testing: N = " + size + ", " + times + " times");
+        // System.out.println("Average performance: " + total / 1000000 + " ms, (" + total / 1000 + " us)");
 
-        System.out.println(solutions.size());
-
-        // gridWithoutSquaresSequence(6);
+        gridWithoutSquaresSequence(6);
     }
 
     /**
@@ -59,9 +64,10 @@ public class GridWithoutSquares
             // Generate the solutions.
             List<boolean[]> solutions = genSol(i);
 
+
             boolean[] sol = solutions.get(0);
 
-            // Reset the numOfEOI
+            // Reset the numOfEOI.
             numOfEOI = 0;
 
             // Get the number of EOI.
@@ -76,6 +82,12 @@ public class GridWithoutSquares
 
             // Print the first solution.
             printSolution(oneDimToTwoDim(sol));
+
+            // Print all solutions.
+            for ( boolean[] solution : solutions)
+            {
+                printSolution(oneDimToTwoDim(solution));
+            }
 
             // Print how many unique solutions there are.
             if (solutions.size() > 1)
@@ -243,6 +255,10 @@ public class GridWithoutSquares
      */
     public static void genSolTR(int ctr, int curElm, MutableInteger maxElm, boolean[] cand, List<boolean[]> sol, Map<Integer, List<Square>> cellToSquares)
     {
+        // Optimisation: Check if it possible to get to the current maxElm.
+        if (curElm + cand.length - ctr < maxElm.val)
+            return;
+
         // Recursion end condiditons.
         if (ctr == cand.length)
         {
@@ -290,7 +306,7 @@ public class GridWithoutSquares
      * 
      * Cells are indexed from 0 to @param size * @param size - 1, 
      * from top left corner to bottom right.
-     * Squares are indexed from 0 to @param size * (@param size − 1) * (2@param size − 1) / 6.
+     * Squares are indexed from 0 to s.
      * This formula is derived from the following series: 1 ^ 2 + 2 ^ 2 + 3 ^ 2 + ... + (n - 1) ^ 2,
      * because there are (n - 1) ^ 2 squares of size 2 in an n by n grid, (n - 2) ^ 2 squares of size 3
      * and so on.
