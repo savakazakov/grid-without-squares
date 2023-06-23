@@ -23,28 +23,28 @@ public class GridWithoutSquares
         // boolean[] first = new boolean[]{false, true, true, true, true, true, true, true, true};
         // boolean[] second = new boolean[]{true, true, true, true, true, true, true, true, false};
 
-        // int size = 2;
-        // int times = 10;
-        // List<boolean[]> solutions = null;
+        int size = 2;
+        int times = 10;
+        List<boolean[]> solutions = null;
 
-        // // Time the method.
-        // long startTime = System.nanoTime();
+        // Time the method.
+        long startTime = System.nanoTime();
 
-        // for (int i = 0; i < times; i++)
-        // {
-        //     solutions = genSol(size);
-        // }
+        for (int i = 0; i < times; i++)
+        {
+            solutions = genSol(size);
+        }
         
-        // long endTime = System.nanoTime();
+        long endTime = System.nanoTime();
 
-        // long total = (endTime - startTime) / times;
-        // System.out.println("Performance: " + total / 1000 + " ms, (" + total / 1000000 + "us)");
+        long total = (endTime - startTime) / times;
+        System.out.println("Performance: " + total / 1000 + " ms, (" + total / 1000000 + "us)");
 
-        // // solutions = genSol(5);
+        // solutions = genSol(5);
 
-        // System.out.println(solutions.size());
+        System.out.println(solutions.size());
 
-        gridWithoutSquaresSequence(6);
+        // gridWithoutSquaresSequence(6);
     }
 
     /**
@@ -261,7 +261,7 @@ public class GridWithoutSquares
             return;
         }
         
-        // Check if it is possible to place the EOI in cell[ctr / size][ctr % size]. 
+        // Check if it is possible to place the EOI in cell[ctr / size][ctr % size].
         if (cellToSquares.get(ctr).stream().allMatch(square -> square.verticesCount < 3))
         {
             // First, set the cell to the EOI.

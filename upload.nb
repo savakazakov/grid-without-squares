@@ -1,0 +1,10 @@
+a[n_] :=
+    Block[{m, qq, nv = n^2, ne},
+        qq = Flatten[1 + Table[n*x + y + {0, s, s*n, s*(n + 1)}, {x, 0, n-2}, {y, 0, n-2}, {s, Min[n-x, n-y] - 1}], 2];
+        ne = Length[qq];
+        m = Table[0, {ne}, {nv}];
+        Do[m[[i, qq[[i]]]] = 1, {i, ne}];
+        Total@Quiet@LinearProgramming[Table[-1, {nv}], m, Table[{3, -1}, {ne}], Table[{0, 1}, {nv}], Integers]
+    ]
+
+Array[a, 8]
