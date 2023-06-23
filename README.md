@@ -54,7 +54,16 @@ With that I've slightly rephrased the original question:
         iv. Optimise my Java code.
         v. Test again with global variables and stop passing them through the stack frames.
         vi. Calculate a hashmap for the uniqueness check.
-6. I've also tried to translate my solution to C++, but without a lot of success. For a test with N = 4 and an average over 10 iterations, the average time spent is 289 ms for C++ and with Java it is 15 ms. Even if I use the -O3 flag in C++ the time spent is 38 ms, which is still quite a lot. After the optimisation for the possibility of the solution, I get 3381 us or about 3 ms with Java. I guess the takeaway point is that my C++ is very unoptimised.
+6. I've also tried to translate my solution to C++, but without a lot of success. For a test with N = 4 and an average over 10 iterations, the average time spent is 289 ms for C++ and with Java it is 15 ms. Even if I use the -O3 flag in C++ the time spent is 38 ms, which is still quite a lot. After the optimisation for the possibility of the solution, I get 3381 us or about 3 ms with Java. I guess the takeaway point is that my C++ is very unoptimised. (I have to read a bunch of books on C++ ...)
+
+## **TODO:**
+
+1. Make sure all methods are safe and I do parameter checking.
+2. Implement concurrency using Thread Pools.
+3. Check assumption for paths in the grid. Clarification: I've noticed that for a lot of solutions there is a graph of orthogonally connected EOIs (that connects all EOIs), if this is somehow intrinsically true as a result of the nature of the problem, then this could be the crack in the problem that makes it possible to go beyond the results, described in the original problem. (https://oeis.org/A227133)
+4. Optimise my Java code.
+5. Test again with global variables and stop passing them through the stack frames.
+6. Calculate a hashmap for the uniqueness check.
 
 ## **NOTES:**
 
