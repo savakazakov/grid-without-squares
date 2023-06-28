@@ -5,15 +5,20 @@
 -import(math, [pow/2]).
 
 
+
+% Iterate across all the points in the grid; with a scale between 2 and the gridlength:
 get_squares(GridLength) ->
 	GridSize = GridLength * GridLength,
 	[construct_Square(Index, Scale, GridLength) || Index <- lists:seq(1, GridSize), Scale <- lists:seq(2, GridLength), validSquare(Index, Scale, GridLength)].
 
+
+% The binary of this integer will be all 0s except for 4 ones in the corners of the square:
 construct_Square(Index, Scale, GridLength) ->
 	trunc(math:pow(2, Index - 1)) + 
 	trunc(math:pow(2, Index - 1 + Scale - 1)) + 
 	trunc(math:pow(2, Index - 1 + (GridLength * (Scale - 1)))) + 
 	trunc(math:pow(2, Index - 1 + (GridLength * (Scale - 1)) + Scale - 1)).
+
 
 %%-----------------%%
 % Utility Functions %
