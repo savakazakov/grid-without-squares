@@ -1,5 +1,14 @@
-public class PlayGround
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+public class TestPrecalcUniquenessCheck
 {
+    public static final int size = 5;
+    public static int[][] rotIndices = rotIndices(size);
+    public static final int times = 10000000;
+
     public static void main(String[] args)
     {
         int size = 5;
@@ -29,44 +38,48 @@ public class PlayGround
             }
         }
 
-        // Check uniqueness 10000 times.
-        int times = 1000000;
+        // Check uniqueness "times" times for different methods.
 
-        long startTimeOld = System.nanoTime();
+        try
+        {
+            measurePerformance(times, grids, "chkUnique");
+            measurePerformance(times, grids, "precalcChkUnique");
+            measurePerformance(times, grids, "precalcChkUniqueEnhanced");
+            measurePerformance(times, grids, "precalcChkUniqueFinal");
+
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * TODO: Finish this.
+     * @param times
+     * @param grids
+     * @param methodName
+     */
+    public static void measurePerformance(int times, boolean[][] grids, String methodName) throws Exception
+    {
+        Class<?>[] argTypes = new Class[] { boolean[].class, boolean[].class };
+        Class<?> c = Class.forName("TestPrecalcUniquenessCheck");
+        Method method = c.getDeclaredMethod(methodName, argTypes);
+
+        long startTime = System.nanoTime();
         
         for (int i = 0; i < times; i++)
         {
             for (int j = 0; j < size; j++)
             {
-                chkUnique(grids[0], grids[j]);
+                method.invoke(null, grids[0], grids[j]);
             }
         }
 
-        long endTimeOld = System.nanoTime();
+        long totalNew = (System.nanoTime() - startTime);
 
-        long totalOld = (endTimeOld - startTimeOld);
-
-        System.out.println("Testing Old: N = " + size + ", " + times + " times");
-        System.out.println("Average performance: " + totalOld / 1000000 + " ms, (" + totalOld / 1000 + " us)");
-
-        long startTimeNew = System.nanoTime();
-        
-        for (int i = 0; i < times; i++)
-        {
-            for (int j = 0; j < size; j++)
-            {
-                chkUniqueNew(grids[0], grids[j]);
-            }
-        }
-
-        long endTimeNew = System.nanoTime();
-
-        long totalNew = (endTimeNew - startTimeNew);
-
-        System.out.println("Testing New: N = " + size + ", " + times + " times");
-        System.out.println("Average performance: " + totalNew / 1000000 + " ms, (" + totalNew / 1000 + " us)");
-
-        // Compare times.
+        System.out.println("Testing " + methodName + ": N = " + size + ", " + times + " times");
+        System.out.println("Performance: " + totalNew / 1000000 + " ms, (" + totalNew / 1000 + " us)");
     }
 
     /**
@@ -188,7 +201,13 @@ public class PlayGround
         return rotIndicesLookup;
     }
 
-    public static boolean chkUniqueNew(boolean[] sol, boolean[] cand)
+    /**
+     * TODO: Finish this.
+     * @param sol
+     * @param cand
+     * @return
+     */
+    public static boolean precalcChkUnique(boolean[] sol, boolean[] cand)
     {
         int[][] rotIndices = rotIndices((int) Math.sqrt(sol.length));
 
@@ -207,6 +226,60 @@ public class PlayGround
 
             if (horTrue && vertTrue && diagTrue)
                 return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * TODO: Finish this.
+     * TODO: There should be a slightly more optimal way to do this.
+     * I.e. avoid the checks for an identity that has already returned true.
+     * @param sol
+     * @param cand
+     * @return
+     */
+    public static boolean precalcChkUniqueEnhanced(boolean[] sol, boolean[] cand)
+    {
+        boolean horTrue = false, vertTrue = false, diagTrue = false;
+
+        for (int i = 0; i < sol.length; i++)
+        {
+            if (!horTrue && sol[i] != cand[rotIndices[0][i]])
+                horTrue = true;
+
+            if (!vertTrue && sol[i] != cand[rotIndices[1][i]])
+                vertTrue = true;
+
+            if (!diagTrue && sol[i] != cand[rotIndices[2][i]])
+                diagTrue = true;
+
+            if (horTrue && vertTrue && diagTrue)
+                return true;
+        }
+
+        return false;
+    }
+
+    public static boolean precalcChkUniqueFinal(boolean[] sol, boolean[] cand)
+    {
+        boolean horTrue = false, vertTrue = false, diagTrue = false;
+        int[] indices = {0, 1, 2};
+        int ctr = 3;
+
+        for (int i = 0; i < sol.length; i++)
+        {
+            for (int j = 0; j < indices.length; j++)
+            {
+                if (indices[j] != -1 && sol[i] != cand[rotIndices[j][i]])
+                {
+                    indices[j] = -1;
+                    ctr--;
+
+                    if (ctr == 0)
+                        return true;
+                }
+            }
         }
 
         return false;
