@@ -23,3 +23,10 @@ Tests:
             i. Test 1 with passing local variables: 650ms, 664ms, 642ms, 670ms, 647ms (654.6 average)
             ii. Test 2 with global variables: 679ms, 700ms, 713ms, 657ms, 683ms (686.4 average)
         Conclusion: It might be better to have local variables, but it might be due to the stress in the system at different times.
+    3. Testing C++ translation of the Java program, against the Java solution.
+        a. Test description: I'm using the same 10 consecutive getSol() calls and I measure the average time spent for each case
+        with a problem of size N = 4.
+            i. Test 1 average time spent is 289 ms for C++.
+            ii. Test 2 average time spent is 15 ms for Java.
+            iii. Test 3 average time spent is 38 ms for C++ compiled with -O3 flag.
+            iv. Test 4 average time spent is 3 ms for Java after possibility optimisation.

@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Arrays;
 import java.util.HashMap;
 
 /**
@@ -20,13 +19,6 @@ public class GridWithoutSquares
 {
     public static void main(String[] args)
     {
-        // boolean[][] first = new boolean[][]{ {true, true, true},
-        //                                      {false, true, true},
-        //                                      {true, true, false} };
-
-        // boolean[] first = new boolean[]{false, true, true, true, true, true, true, true, true};
-        // boolean[] second = new boolean[]{true, true, true, true, true, true, true, true, false};
-
         // int size = 4;
         // int times = 10;
         // List<boolean[]> solutions = null;
