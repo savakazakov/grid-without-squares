@@ -1,18 +1,10 @@
-public class PlayGround
+public class TestPrecalcUniquenessCheck
 {
+    public static final int size = 5;
+    public static int[][] rotIndices = rotIndices(size);
+
     public static void main(String[] args)
     {
-        int size = 5;
-        int[][] rotIdxs = rotIndices(size);
-        
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = 0; j < size * size; j++)
-            {
-                System.out.println("[" + i + "][" + j + "] = " + rotIdxs[i][j]);
-            }
-        }
-
         // Generate 5 random 5x5 grids.
         boolean[][] grids = new boolean[size][size * size];
 
@@ -24,12 +16,10 @@ public class PlayGround
                     grids[i][j] = false;
                 else
                     grids[i][j] = true;
-
-                // System.out.println("[" + i + "][" + j + "] = " + rotIdxs[i][j]);
             }
         }
 
-        // Check uniqueness 10000 times.
+        // Check uniqueness 1000000 times.
         int times = 1000000;
 
         long startTimeOld = System.nanoTime();
@@ -47,7 +37,7 @@ public class PlayGround
         long totalOld = (endTimeOld - startTimeOld);
 
         System.out.println("Testing Old: N = " + size + ", " + times + " times");
-        System.out.println("Average performance: " + totalOld / 1000000 + " ms, (" + totalOld / 1000 + " us)");
+        System.out.println("Performance: " + totalOld / 1000000 + " ms, (" + totalOld / 1000 + " us)");
 
         long startTimeNew = System.nanoTime();
         
@@ -64,7 +54,7 @@ public class PlayGround
         long totalNew = (endTimeNew - startTimeNew);
 
         System.out.println("Testing New: N = " + size + ", " + times + " times");
-        System.out.println("Average performance: " + totalNew / 1000000 + " ms, (" + totalNew / 1000 + " us)");
+        System.out.println("Performance: " + totalNew / 1000000 + " ms, (" + totalNew / 1000 + " us)");
 
         // Compare times.
     }
@@ -175,7 +165,6 @@ public class PlayGround
      */
     public static int[][] rotIndices(int size)
     {
-        // int flattenedSize = size * size;
         int[][] rotIndicesLookup = new int[3][size * size];
 
         for (int i = 0; i < size * size; i++)
@@ -190,8 +179,6 @@ public class PlayGround
 
     public static boolean chkUniqueNew(boolean[] sol, boolean[] cand)
     {
-        int[][] rotIndices = rotIndices((int) Math.sqrt(sol.length));
-
         boolean horTrue = false, vertTrue = false, diagTrue = false;
 
         for (int i = 0; i < sol.length; i++)

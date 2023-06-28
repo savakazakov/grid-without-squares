@@ -30,3 +30,5 @@ Tests:
             ii. Test 2 average time spent is 15 ms for Java.
             iii. Test 3 average time spent is 38 ms for C++ compiled with -O3 flag.
             iv. Test 4 average time spent is 3 ms for Java after possibility optimisation.
+    4. Testing pre-calculation for the uniqueness check.
+        a. Test description: 
