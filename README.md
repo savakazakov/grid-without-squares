@@ -55,6 +55,7 @@ With that I've slightly rephrased the original question:
         v. Test again with global variables and stop passing them through the stack frames.
         vi. Calculate a hashmap for the uniqueness check.
 6. I've also tried to translate my solution to C++, but without a lot of success. For a test with N = 4 and an average over 10 iterations, the average time spent is 289 ms for C++ and with Java it is 15 ms. Even if I use the -O3 flag in C++ the time spent is 38 ms, which is still quite a lot. After the optimisation for the possibility of the solution, I get 3381 us or about 3 ms with Java. I guess the takeaway point is that my C++ is very unoptimised. (I have to read a bunch of books on C++ ...)
+7. After a brief research it seems that a flattened boolean[] array was the best representation of the grid after all in terms of time complexity.
 
 ## **TODO:**
 
@@ -64,6 +65,9 @@ With that I've slightly rephrased the original question:
 4. Optimise my Java code.
 5. Test again with global variables and stop passing them through the stack frames.
 6. Calculate a hashmap for the uniqueness check.
+    a. The idea is to precalculate the rotated indecies so as not to calculate them all of the time.
+7. Encode the grid with an Integer/BitSet/BigInteger.
+    a. On a second note a flattened boolean[] seems to be the most time efficient solution.
 
 ## **NOTES:**
 
