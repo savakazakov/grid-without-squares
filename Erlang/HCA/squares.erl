@@ -1,8 +1,7 @@
--module(generate_squares).
--export([get_squares/1, get_heat_map/2, get_dependency_map/2, apply_dependency_map/2, 
-		 convertToBitlist/2, convertAllToBitlist/2]).
+-module(squares).
+-export([get_squares/1, get_heat_map/2, get_dependency_maps/2, apply_dependency_map/2, get_peaks_of_heatmap/1, clear_bit/2, convert_to_Bitlist/2, convert_all_to_Bitlist/2]).
 
--import(lists, [nth/2, zip/2, seq/2, duplicate/2]).
+-import(lists, [nth/2, zip/2, seq/2, duplicate/2, max/1]).
 -import(math, [pow/2]).
 
 
@@ -16,9 +15,8 @@
 
 % These squares can also be combined together via bitwise OR.
 % If all of the squares that contain a 1 in a cell are OR'd together a dependency_map is created,
-% "Dependency" refers to the fact that all of squares in the map use that cell.
+% "Dependency" refers to the fact that all of squares in the map use that cell; there is one map per cell.
 % If a cell in the grid is set to 0, the heatmap can be updated by simply subtracting that dependency_map from the heatmap.
-
 
 
 
@@ -46,13 +44,17 @@ get_heat_map([Square | Squares], Map) -> get_heat_map(Squares, elementwise_add_l
 
 
 % Build this mythical, magical, magnificent map:
-get_dependency_map(Squares, GridSize) -> [combine_squares(SharedSquares, GridSize) || SharedSquares <- [lists_with_set_N(Squares, N) || N <- lists:seq(1, GridSize)]].
+get_dependency_maps(Squares, GridSize) -> [combine_squares(SharedSquares, GridSize) || SharedSquares <- [lists_with_set_N(Squares, N) || N <- lists:seq(1, GridSize)]].
 combine_squares(Squares, GridSize) -> lists:foldl(fun elementwise_bor_lists/2, lists:duplicate(GridSize, 0), Squares). % Bitwise OR all of the squares together
 
 apply_dependency_map(HeatMap, DependencyMap) -> elementwise_sub_lists(HeatMap, DependencyMap).
 
 
+% There are lots of ways to optimise this function
+get_peaks_of_heatmap(HeatMap) -> [{Value, Index} || {Value, Index} <- lists:zip(HeatMap, lists:seq(1, length(HeatMap))), Value == lists:max(HeatMap)].
 
+
+clear_bit(Grid, N) -> Grid - trunc(math:pow(2, N - 1)).
 
 %%-----------------%%
 % Utility Functions %
@@ -65,8 +67,8 @@ rowCrossing(Current, Scale, GridLength) -> abs(currentRow(Current, GridLength) -
 currentRow(Index, GridLength) -> ((Index - 1) + GridLength - ((Index - 1) rem GridLength)) / GridLength. % -1 since this requires 0-based indexing
 
 
-convertToBitlist(Value, GridSize) -> [Bit || <<Bit:1>> <= <<Value:GridSize>>].
-convertAllToBitlist(Values, GridSize) -> [[Bit || <<Bit:1>> <= <<Value:GridSize>>] || Value <- Values].
+convert_to_Bitlist(Value, GridSize) -> [Bit || <<Bit:1>> <= <<Value:GridSize>>].
+convert_all_to_Bitlist(Values, GridSize) -> [[Bit || <<Bit:1>> <= <<Value:GridSize>>] || Value <- Values].
 
 
 elementwise_bor_lists(List1, List2) -> [X bor Y || {X, Y} <- lists:zip(List1, List2)].
