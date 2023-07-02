@@ -1,7 +1,8 @@
 -module(main).
 -export([solve/1]).
 
--import(squares, [get_squares/1, get_heat_map/2, get_dependency_maps/2, apply_dependency_map/2, get_peaks_of_heatmap/1, clear_bit/2, convert_to_Bitlist/2, convert_all_to_Bitlist/2]).
+-import(squares, [get_squares/1, get_heat_map/2, get_dependency_maps/2, apply_dependency_map/3, get_peaks_of_heatmap/1, clear_bit/2, convert_to_bitlist/2, convert_all_to_bitlist/2]).
+-import(lists, [sum/1]).
 
 
 % OEIS\A227133 Problem Description: 
@@ -33,37 +34,61 @@
 solve(GridLength) ->
 	start_clock(),
 
+	% cd("C:/Users/Kier/Desktop/OEIS/A227133/GridWithoutSquares/Erlang/HCA").
+
 	GridSize = GridLength * GridLength,
 	Squares = squares:get_squares(GridLength), % A List of all possible squares as integers.
-	SquaresAsBitLists = squares:convert_all_to_Bitlist(Squares, GridSize), % Each element is a single bit.
+	SquaresAsBitLists = squares:convert_all_to_bitlist(Squares, GridSize), % Each element is a single bit.
 
 	InitialGrid = trunc(math:pow(2, GridSize)) - 1, % An integer with GridSize number of set bits.
 	InitialHeatMap = squares:get_heat_map(SquaresAsBitLists, GridSize), % A list expressing how many squares each cell is part of.
 	DependencyMaps = squares:get_dependency_maps(SquaresAsBitLists, GridSize), % A list of GridSize number of sublists, the specific squares that cell is part of.
 
-
 	% Due to the size & quantity of variables that are used but not modified during recursion an internal function is used for searching:
 	SearchFun = 
-			% First terminal Case:
-			fun Search(_, _, CurrentDepth, BestKnownDepth) when CurrentDepth + 1 >= BestKnownDepth -> {BestKnownDepth, no_solution};
-		    	
 			% Main Recurrence Case:
-		    	Search(CurrentGrid, CurrentHeatmap, CurrentDepth, BestKnownDepth) -> 
-		    		case validGrid(CurrentGrid, Squares) of
-		    			true -> {CurrentDepth + 1, CurrentGrid};
+		    fun	Search(CurrentGrid, CurrentHeatmap, Depth) ->
+		    	if
+		    		Depth >= 4 -> ok;
+		    		true ->
+
+		    		io:fwrite("Searching from:~n"),
+		    		print_grid(squares:convert_to_bitlist(CurrentGrid, GridSize), GridLength),
+		    		io:fwrite("With HeatMap:~n"),
+		    		print_grid(CurrentHeatmap, GridLength),
+
+		    		case is_cold(squares:convert_to_bitlist(CurrentGrid, GridSize)) of
+		    			true -> CurrentGrid;
 		    			false ->
 			    			% Get the peaks in the heatmap (these are not rotationally invariant):
 			    			Peaks = squares:get_peaks_of_heatmap(CurrentHeatmap),
+			    			io:fwrite("Peaks ~p.~n", [Peaks]),
 
-			    			{_, N} = hd(Peaks),
-			    			NextDependencyMap = lists:nth(N, DependencyMaps),
-			    			Search(squares:clear_bit(CurrentGrid, N), squares:apply_dependency_map(CurrentHeatmap, NextDependencyMap), CurrentDepth + 1, BestKnownDepth)
-					end
+			    			% Find the appropriate dependency maps:
+			    			NextDependencyMaps = [{lists:nth(N, DependencyMaps), N} || {_, N} <- Peaks],
+
+			    			% Generate the next heatmaps & grids:
+			    			%ChildGridsAndHeatmaps = [{squares:clear_bit(CurrentGrid, N), squares:apply_dependency_map(CurrentHeatmap, DependencyMap, N)} || {DependencyMap, N} <- NextDependencyMaps],
+			    			ChildGridsAndHeatmaps = [{squares:clear_bit(CurrentGrid, N), squares:apply_dependency_map(CurrentHeatmap, DependencyMap, N)} || {DependencyMap, N} <- NextDependencyMaps],
+
+			    			% Breadth first search:
+			    			%case get_valid_grid([ChildGrid || {ChildGrid, _} <- ChildGridsAndHeatmaps], Squares) of
+			    			A = [ChildGrid || {ChildGrid, _} <- lists:sublist(ChildGridsAndHeatmaps, 1)],
+			    			io:fwrite("ChildGridsAndHeatmaps.~n"),
+			    			[{print_grid(ChildGrid, GridLength), print_grid(ChildHeatmap, GridLength)} || {convert_to_bitlist(ChildGrid, GridSize), ChildHeatmap} <- ChildGridsAndHeatmaps],
+
+		    				case get_valid_grid(A, Squares) of
+			    				no_solution -> hd(lists:flatten([Search(ChildGrid, ChildHeatmap, Depth + 1) || {ChildGrid, ChildHeatmap} <- ChildGridsAndHeatmaps]));
+			    				Solution -> Solution
+			    			end
+			    	end
+	    		end
 			end,
 
-	{BestKnownDepth, Solution} = SearchFun(InitialGrid, InitialHeatMap, 1, GridSize),
-	io:fwrite("Solution Found.~nF(~p) = ~p.~n", [GridLength, BestKnownDepth]),
-	printGrid(convert_to_Bitlist(Solution, GridSize), GridLength),
+	Solution = SearchFun(InitialGrid, InitialHeatMap, 0),
+
+	io:fwrite("Solution Found.~nF(~p) = ~p.~n", [GridLength, popcount(Solution, GridSize)]),
+	print_grid(convert_to_bitlist(Solution, GridSize), GridLength),
 
 	stop_clock().
 
@@ -72,18 +97,30 @@ solve(GridLength) ->
 % Utility Functions %
 %%-----------------%%
 
+
 start_clock() -> statistics(runtime).
 stop_clock() ->
     {_, Time1} = statistics(runtime),
     io:format("It took ~p seconds.~n", [Time1 / 1000]).
 
-printGrid(Grid, GridLength) -> [io:fwrite("~p~n", [lists:sublist(Grid, N, GridLength)]) || N <- lists:seq(1, length(Grid), GridLength)].
+
+print_grid(Grid, GridLength) -> [io:fwrite("~p~n", [lists:sublist(Grid, N, GridLength)]) || N <- lists:seq(1, length(Grid), GridLength)].
+popcount(Value, GridSize) -> lists:sum(squares:convert_to_bitlist(Value, GridSize)).
+is_cold(CurrentGrid) -> lists:all(fun(Element) -> Element =< 0 end, CurrentGrid).
 
 
-isSquare(Value, Square) -> (Value band Square) == Square.
-validGrid(Value, [Square | []]) -> not isSquare(Value, Square);
-validGrid(Value, [Square | OtherSquares]) ->
-	case isSquare(Value, Square) of
+is_square(Value, Square) -> (Value band Square) == Square.
+is_valid_grid(Value, [Square | []]) -> not is_square(Value, Square);
+is_valid_grid(Value, [Square | OtherSquares]) ->
+	case is_square(Value, Square) of
 		true -> false;
-		_ -> validGrid(Value, OtherSquares)
+		_ -> is_valid_grid(Value, OtherSquares)
+	end.
+
+
+get_valid_grid([], _) -> no_solution;
+get_valid_grid([Grid | Grids], Squares) ->
+	case is_valid_grid(Grid, Squares) of
+		true -> Grid;
+		false -> get_valid_grid(Grids, Squares)
 	end.

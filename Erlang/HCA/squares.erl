@@ -1,5 +1,5 @@
 -module(squares).
--export([get_squares/1, get_heat_map/2, get_dependency_maps/2, apply_dependency_map/2, get_peaks_of_heatmap/1, clear_bit/2, convert_to_Bitlist/2, convert_all_to_Bitlist/2]).
+-export([get_squares/1, get_heat_map/2, get_dependency_maps/2, apply_dependency_map/3, get_peaks_of_heatmap/1, clear_bit/2, convert_to_bitlist/2, convert_all_to_bitlist/2]).
 
 -import(lists, [nth/2, zip/2, seq/2, duplicate/2, max/1]).
 -import(math, [pow/2]).
@@ -43,18 +43,21 @@ get_heat_map([Square |[]], Map) -> elementwise_add_lists(Square, Map);
 get_heat_map([Square | Squares], Map) -> get_heat_map(Squares, elementwise_add_lists(Square, Map)).
 
 
-% Build this mythical, magical, magnificent map:
+% Build these mythical, magical maps:
 get_dependency_maps(Squares, GridSize) -> [combine_squares(SharedSquares, GridSize) || SharedSquares <- [lists_with_set_N(Squares, N) || N <- lists:seq(1, GridSize)]].
-combine_squares(Squares, GridSize) -> lists:foldl(fun elementwise_bor_lists/2, lists:duplicate(GridSize, 0), Squares). % Bitwise OR all of the squares together
 
-apply_dependency_map(HeatMap, DependencyMap) -> elementwise_sub_lists(HeatMap, DependencyMap).
+% Bitwise OR all of the squares together:
+combine_squares(Squares, GridSize) -> lists:foldl(fun elementwise_bor_lists/2, lists:duplicate(GridSize, 0), Squares).
 
+% Simply subtract the selected Dependency Map from the Heat Map and set the value at N to 0:
+apply_dependency_map(HeatMap, DependencyMap, Index) ->
+	Value = lists:nth(Index, HeatMap),
+	Mask = lists:duplicate(length(HeatMap) - Index, 0) ++ [Value] ++ lists:duplicate(Index - 1, 0),
+	elementwise_sub_lists(elementwise_sub_lists(HeatMap, DependencyMap), Mask).
 
 % There are lots of ways to optimise this function
 get_peaks_of_heatmap(HeatMap) -> [{Value, Index} || {Value, Index} <- lists:zip(HeatMap, lists:seq(1, length(HeatMap))), Value == lists:max(HeatMap)].
 
-
-clear_bit(Grid, N) -> Grid - trunc(math:pow(2, N - 1)).
 
 %%-----------------%%
 % Utility Functions %
@@ -66,15 +69,16 @@ squareWithinBounds(Current, Scale, GridWidth) -> (Current + (Scale - 1) + (GridW
 rowCrossing(Current, Scale, GridLength) -> abs(currentRow(Current, GridLength) - currentRow(Current + Scale -1, GridLength)) > 0.
 currentRow(Index, GridLength) -> ((Index - 1) + GridLength - ((Index - 1) rem GridLength)) / GridLength. % -1 since this requires 0-based indexing
 
+clear_bit(Grid, N) -> Grid - trunc(math:pow(2, N - 1)).
 
-convert_to_Bitlist(Value, GridSize) -> [Bit || <<Bit:1>> <= <<Value:GridSize>>].
-convert_all_to_Bitlist(Values, GridSize) -> [[Bit || <<Bit:1>> <= <<Value:GridSize>>] || Value <- Values].
-
+convert_to_bitlist(Value, GridSize) -> [Bit || <<Bit:1>> <= <<Value:GridSize>>].
+convert_all_to_bitlist(Values, GridSize) -> [[Bit || <<Bit:1>> <= <<Value:GridSize>>] || Value <- Values].
 
 elementwise_bor_lists(List1, List2) -> [X bor Y || {X, Y} <- lists:zip(List1, List2)].
+elementwise_band_lists(List1, List2) -> [X band Y || {X, Y} <- lists:zip(List1, List2)].
+
 elementwise_sub_lists(List1, List2) -> [X - Y || {X, Y} <- lists:zip(List1, List2)].
 elementwise_add_lists(List1, List2) -> [X + Y || {X, Y} <- lists:zip(List1, List2)].
-
 
 % Filter Lists, return a sublist of lists that have their Nth element equal to 1: 
 lists_with_set_N(Lists, N) -> 
