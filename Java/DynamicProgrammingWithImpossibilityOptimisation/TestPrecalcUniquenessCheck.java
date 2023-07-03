@@ -5,25 +5,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class TestPrecalcUniquenessCheck
 {
+    // Testing configurations:
     public static final int size = 5;
     public static int[][] rotIndices = rotIndices(size);
-    public static final int times = 10000000;
+    public static final int numOfGrids = 10000;
+    public static final int times = 1000;
 
     public static void main(String[] args)
     {
-        int size = 5;
-        int[][] rotIdxs = rotIndices(size);
-        
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = 0; j < size * size; j++)
-            {
-                System.out.println("[" + i + "][" + j + "] = " + rotIdxs[i][j]);
-            }
-        }
-
         // Generate 5 random 5x5 grids.
-        boolean[][] grids = new boolean[size][size * size];
+        boolean[][] grids = new boolean[numOfGrids][size * size];
 
         for (int i = 0; i < size; i++)
         {
@@ -33,19 +24,19 @@ public class TestPrecalcUniquenessCheck
                     grids[i][j] = false;
                 else
                     grids[i][j] = true;
-
-                // System.out.println("[" + i + "][" + j + "] = " + rotIdxs[i][j]);
             }
         }
 
         // Check uniqueness "times" times for different methods.
-
         try
         {
-            measurePerformance(times, grids, "chkUnique");
-            measurePerformance(times, grids, "precalcChkUnique");
-            measurePerformance(times, grids, "precalcChkUniqueEnhanced");
-            measurePerformance(times, grids, "precalcChkUniqueFinal");
+            measurePerformance(times, "runUniquenessTest", "chkUnique", grids);
+            // measurePerformance(times, "differentMethodSignature", "Print this");
+            
+            measurePerformance(times, "runUniquenessTest", "precalcChkUnique", grids);
+            measurePerformance(times, "runUniquenessTest", "precalcChkUniqueEnhanced", grids);
+            measurePerformance(times, "runUniquenessTest", "precalcChkUniqueFinal", grids);
+            // measurePerformance(1, "differentMethodSignature", "Print this!");
 
         }
         catch (Exception e)
@@ -55,31 +46,48 @@ public class TestPrecalcUniquenessCheck
     }
 
     /**
-     * TODO: Finish this.
-     * @param times
-     * @param grids
+     * Testing framework for evaluating the performance of different method implementations. 
+     * @param times - The number of times to run the test.
+     * @param grids - 
      * @param methodName
      */
-    public static void measurePerformance(int times, boolean[][] grids, String methodName) throws Exception
+    public static void measurePerformance(int times, String methodName, Object... args) throws Exception
     {
-        Class<?>[] argTypes = new Class[] { boolean[].class, boolean[].class };
+        Class<?>[] argTypes = new Class[args.length];
+        for (int i = 0; i < args.length; i++)
+            argTypes[i] = args[i].getClass();
+
         Class<?> c = Class.forName("TestPrecalcUniquenessCheck");
         Method method = c.getDeclaredMethod(methodName, argTypes);
 
         long startTime = System.nanoTime();
+        long timeElapsed = 0;
         
         for (int i = 0; i < times; i++)
+            timeElapsed += (Long) method.invoke(null, args);
+
+        long total = (System.nanoTime() - startTime);
+
+        System.out.println("Testing " + methodName + ": N = " + size + ", " + times + " times, " + numOfGrids + " number of grids.");
+        System.out.println("Performance: " + total / 1000000 + " ms, (" + total / 1000 + " us)");
+
+        System.out.println("Testing timeElapsed " + methodName + ": N = " + size + ", " + times + " times, " + numOfGrids + " number of grids.");
+        System.out.println("Performance: " + timeElapsed / 1000000 + " ms, (" + timeElapsed / 1000 + " us)");
+    }
+
+    public static long runUniquenessTest(String uniquenessMethodName, boolean[][] grids) throws Exception
+    {
+        Class<?> c = Class.forName("TestPrecalcUniquenessCheck");
+        Method method = c.getDeclaredMethod(uniquenessMethodName, boolean[].class, boolean[].class);
+
+        long startTime = System.nanoTime();
+
+        for (int i = 0; i < numOfGrids; i++)
         {
-            for (int j = 0; j < size; j++)
-            {
-                method.invoke(null, grids[0], grids[j]);
-            }
+            method.invoke(null, grids[0], grids[i]);
         }
 
-        long totalNew = (System.nanoTime() - startTime);
-
-        System.out.println("Testing " + methodName + ": N = " + size + ", " + times + " times");
-        System.out.println("Performance: " + totalNew / 1000000 + " ms, (" + totalNew / 1000 + " us)");
+        return System.nanoTime() - startTime;
     }
 
     /**
@@ -179,17 +187,18 @@ public class TestPrecalcUniquenessCheck
     }
 
     /**
-     * TODO: Finish this.
-     * 0 i hor
-     * 1 is vert
-     * 2 is the diag
-     * @param size
-     * @return
+     * Pre-calculate the indices for the horizontally, vertically and
+     * diagonally symmetrical grids with the specified size.
+     * @Note - 
+     * @param size - The size of the grid.
+     * @return - A 2D array, which holds 3 arrays of length size * size.
+     * @Note - Index 0 is the horizontally reflected index.
+     * @Note - Index 1 is the vertically reflected index.
+     * @Note - Index 2 is the diagonally reflected index.
      */
     public static int[][] rotIndices(int size)
     {
-        // int flattenedSize = size * size;
-        int[][] rotIndicesLookup = new int[3][size * size];
+        int[][] rotIndicesLookup = new int[8][size * size];
 
         for (int i = 0; i < size * size; i++)
         {
@@ -202,19 +211,22 @@ public class TestPrecalcUniquenessCheck
     }
 
     /**
-     * TODO: Finish this.
+     * Pre-calculated version of chkUnique
+     * @see chkUnique
+     * @see rot
      * @param sol
      * @param cand
      * @return
      */
     public static boolean precalcChkUnique(boolean[] sol, boolean[] cand)
     {
-        int[][] rotIndices = rotIndices((int) Math.sqrt(sol.length));
-
-        boolean horTrue = false, vertTrue = false, diagTrue = false;
+        boolean identTrue = false, horTrue = false, vertTrue = false, diagTrue = false;
 
         for (int i = 0; i < sol.length; i++)
         {
+            if (sol[i] != cand[i])
+                identTrue = true;
+
             if (sol[i] != cand[rotIndices[0][i]])
                 horTrue = true;
 
@@ -224,8 +236,9 @@ public class TestPrecalcUniquenessCheck
             if (sol[i] != cand[rotIndices[2][i]])
                 diagTrue = true;
 
-            if (horTrue && vertTrue && diagTrue)
+            if (identTrue && horTrue && vertTrue && diagTrue)
                 return true;
+
         }
 
         return false;
@@ -241,10 +254,13 @@ public class TestPrecalcUniquenessCheck
      */
     public static boolean precalcChkUniqueEnhanced(boolean[] sol, boolean[] cand)
     {
-        boolean horTrue = false, vertTrue = false, diagTrue = false;
+        boolean identTrue = false, horTrue = false, vertTrue = false, diagTrue = false;
 
         for (int i = 0; i < sol.length; i++)
         {
+            if (!identTrue && sol[i] != cand[i])
+                identTrue = true;
+
             if (!horTrue && sol[i] != cand[rotIndices[0][i]])
                 horTrue = true;
 
@@ -254,7 +270,7 @@ public class TestPrecalcUniquenessCheck
             if (!diagTrue && sol[i] != cand[rotIndices[2][i]])
                 diagTrue = true;
 
-            if (horTrue && vertTrue && diagTrue)
+            if (identTrue && horTrue && vertTrue && diagTrue)
                 return true;
         }
 
@@ -263,14 +279,23 @@ public class TestPrecalcUniquenessCheck
 
     public static boolean precalcChkUniqueFinal(boolean[] sol, boolean[] cand)
     {
-        boolean horTrue = false, vertTrue = false, diagTrue = false;
+        boolean identTrue = false;
         int[] indices = {0, 1, 2};
-        int ctr = 3;
+        int ctr = 4;
 
         for (int i = 0; i < sol.length; i++)
         {
             for (int j = 0; j < indices.length; j++)
             {
+                if (!identTrue && sol[i] != cand[i])
+                {
+                    identTrue = true;
+                    ctr--;
+
+                    if (ctr == 0)
+                        return true;
+                }
+
                 if (indices[j] != -1 && sol[i] != cand[rotIndices[j][i]])
                 {
                     indices[j] = -1;
@@ -283,5 +308,10 @@ public class TestPrecalcUniquenessCheck
         }
 
         return false;
+    }
+
+    public static void differentMethodSignature(String str)
+    {
+        System.out.println(str);
     }
 }
