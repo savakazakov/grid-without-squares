@@ -1,5 +1,5 @@
 -module(squares).
--export([get_squares/1, get_heat_map/2, get_dependency_maps/2, apply_dependency_map/3, get_peaks_of_heatmap/1, clear_bit/2, convert_to_bitlist/2, convert_all_to_bitlist/2]).
+-export([get_squares/1, get_heat_map/2, get_dependency_maps/2, apply_dependency_map/3, get_peaks_of_heatmap/1, get_shared_squares/2, clear_bit/2, convert_to_bitlist/2, convert_all_to_bitlist/2]).
 
 -import(lists, [nth/2, zip/2, seq/2, duplicate/2, max/1]).
 -import(math, [pow/2]).
@@ -46,9 +46,12 @@ get_heat_map([Square | Squares], Map) -> get_heat_map(Squares, elementwise_add_l
 % Build these mythical, magical maps:
 get_dependency_maps(Squares, GridSize) -> [combine_squares(SharedSquares, GridSize) || SharedSquares <- [lists_with_set_N(Squares, N) || N <- lists:seq(1, GridSize)]].
 
+get_shared_squares(Squares, GridSize) -> [lists_with_set_N(Squares, N) || N <- lists:seq(1, GridSize)].
+
+
 % Bitwise OR all of the squares together:
 combine_squares(Squares, GridSize) -> lists:foldl(fun elementwise_bor_lists/2, lists:duplicate(GridSize, 0), Squares).
-
+ 
 % Simply subtract the selected Dependency Map from the Heat Map and set the value at N to 0:
 apply_dependency_map(HeatMap, DependencyMap, Index) ->
 	Value = lists:nth(Index, HeatMap),
@@ -75,8 +78,6 @@ convert_to_bitlist(Value, GridSize) -> [Bit || <<Bit:1>> <= <<Value:GridSize>>].
 convert_all_to_bitlist(Values, GridSize) -> [[Bit || <<Bit:1>> <= <<Value:GridSize>>] || Value <- Values].
 
 elementwise_bor_lists(List1, List2) -> [X bor Y || {X, Y} <- lists:zip(List1, List2)].
-elementwise_band_lists(List1, List2) -> [X band Y || {X, Y} <- lists:zip(List1, List2)].
-
 elementwise_sub_lists(List1, List2) -> [X - Y || {X, Y} <- lists:zip(List1, List2)].
 elementwise_add_lists(List1, List2) -> [X + Y || {X, Y} <- lists:zip(List1, List2)].
 
