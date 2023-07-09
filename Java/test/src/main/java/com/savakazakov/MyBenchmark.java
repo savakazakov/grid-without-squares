@@ -33,12 +33,25 @@ package com.savakazakov;
 
 import org.openjdk.jmh.annotations.Benchmark;
 
-public class MyBenchmark {
+public class MyBenchmark
+{
+    public static void main(String[] args)
+    {
+        testMethod();    
+    }
 
     @Benchmark
-    public void testMethod() {
+    public static void testMethod()
+    {
         // This is a demo/sample template for building your JMH benchmarks. Edit as needed.
         // Put your benchmark code here.
+        int a = 1000;
+        int b = 1;
+        for (int i = 0; i < a * a; i++)
+        {
+            b++;
+        }
+        System.out.println(b);
     }
 
 }

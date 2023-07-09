@@ -59,7 +59,7 @@ With that I've slightly rephrased the original question:
 
 ## **TODO:**
 
-1. Make sure all methods are safe and I do parameter checking.
+1. ~~Make sure all methods are safe and I do parameter checking.~~
 2. Implement concurrency using Thread Pools.
 3. Check assumption for paths in the grid. Clarification: I've noticed that for a lot of solutions there is a graph of orthogonally connected EOIs (that connects all EOIs), if this is somehow intrinsically true as a result of the nature of the problem, then this could be the crack in the problem that makes it possible to go beyond the results, described in the original problem. (https://oeis.org/A227133)
 4. Optimise my Java code.
@@ -68,6 +68,7 @@ With that I've slightly rephrased the original question:
     a. The idea is to precalculate the rotated indecies so as not to calculate them all of the time.
 7. Encode the grid with an Integer/BitSet/BigInteger.
     a. On a second note a flattened boolean[] seems to be the most time efficient solution.
+    b. Test anyways.
 
 ## **NOTES:**
 

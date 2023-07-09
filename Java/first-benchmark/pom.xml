@@ -3,11 +3,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.savakazakov</groupId>
-    <artifactId>test</artifactId>
+    <artifactId>first-benchmark</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
     <name>JMH benchmark sample: Java</name>
+
+    <!--
+       This is the demo/sample template build script for building Java benchmarks with JMH.
+       Edit as needed.
+    -->
 
     <dependencies>
         <dependency>

@@ -1,0 +1,9 @@
+
+            rotIndicesLookup[0][i] = i;
+            rotIndicesLookup[1][i] = (size - 1) - (i % size) * size + (i / size);
+            rotIndicesLookup[2][i] = (size * size) - 1 - i;
+            rotIndicesLookup[3][i] = (size - 1) + (i % size) * size - (i / size);
+            rotIndicesLookup[4][i] = (i % size) * size + (size - 1 - (i / size));
+            rotIndicesLookup[5][i] = (size - 1 - (i % size)) * size + (i / size);
+            rotIndicesLookup[6][i] = (i % size) * size + (i / size);
+            rotIndicesLookup[7][i] = (size - 1 - (i % size)) * size + (size - 1 - (i / size));
