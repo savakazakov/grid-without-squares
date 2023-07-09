@@ -69,6 +69,8 @@ With that I've slightly rephrased the original question:
 7. Encode the grid with an Integer/BitSet/BigInteger.
     a. On a second note a flattened boolean[] seems to be the most time efficient solution.
     b. Test anyways.
+8. Read all examples from https://github.com/openjdk/jmh/blob/master/jmh-samples/src/main/java/org/openjdk/jmh/samples/JMHSample_07_FixtureLevelInvocation.java and finish the TemplateBenchmark documentation of JMH.
+9. Add all symmetries of a square.
 
 ## **NOTES:**
 

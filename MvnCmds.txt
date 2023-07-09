@@ -19,7 +19,7 @@ java -cp target/classes com.savakazakov.GridWithoutSquares
 java -jar target/benchmarks.jar
 
 // Run a different class.
-java -jar target/benchmarks.jar [Class_Name]
+java [-jvmArgs] -jar target/benchmarks.jar [Class_Name]
 
 // Flags:
   -i <int>                    Number of measurement iterations to do. Measurement 
