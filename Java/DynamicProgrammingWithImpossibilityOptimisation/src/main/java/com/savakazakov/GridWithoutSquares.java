@@ -1,8 +1,4 @@
-import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.runner.Runner;
-import org.openjdk.jmh.runner.RunnerException;
-import org.openjdk.jmh.runner.options.Options;
-import org.openjdk.jmh.runner.options.OptionsBuilder;
+package com.savakazakov;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,31 +19,32 @@ import java.util.HashMap;
  */
 public class GridWithoutSquares
 {
+    public static final int size = 6;
+    public static final int times = 10;
+
     public static void main(String[] args)
     {
-        // int size = 4;
-        // int times = 10;
-        // List<boolean[]> solutions = null;
+        List<boolean[]> solutions = null;
 
-        // // Time the method.
-        // long startTime = System.nanoTime();
+        // Time the method.
+        long startTime = System.nanoTime();
 
-        // for (int i = 0; i < times; i++)
-        // {
-        //     solutions = genSol(size);
-        // }
+        for (int i = 0; i < times; i++)
+        {
+            solutions = genSol(size);
+        }
 
-        // // solutions = genSol(size);
-        // // printSolution(oneDimToTwoDim(solutions.get(0)));
+        solutions = genSol(size);
+        printSolution(solutions.get(0));
         
-        // long endTime = System.nanoTime();
+        long endTime = System.nanoTime();
 
-        // long total = (endTime - startTime) / times;
+        long total = (endTime - startTime) / times;
 
-        // System.out.println("Testing: N = " + size + ", " + times + " times");
-        // System.out.println("Average performance: " + total / 1000000 + " ms, (" + total / 1000 + " us)");
+        System.out.println("Testing: N = " + size + ", " + times + " times");
+        System.out.println("Average performance: " + total / 1000000 + " ms, (" + total / 1000 + " us)");
 
-        gridWithoutSquaresSequence(6);
+        // gridWithoutSquaresSequence(6);
     }
 
     /**
