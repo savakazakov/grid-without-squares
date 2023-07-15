@@ -5,10 +5,6 @@
 
 package com.savakazakov;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
@@ -320,9 +316,10 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @State(Scope.Benchmark)
-@Fork(value = 2/* , jvmArgs = {"-Xms2G", "-Xmx2G"} */)
-// @Warmup(iterations = 2)
-// @Measurement(iterations = 3)
+@Threads(12)
+@Fork(value = 3/* , jvmArgs = {"-Xms2G", "-Xmx2G"} */)
+@Warmup(iterations = 2, time = 1, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 3, time = 1, timeUnit = TimeUnit.SECONDS)
 public class TemplateBenchmark
 {
     public static void main(String[] args) throws RunnerException
@@ -338,6 +335,9 @@ public class TemplateBenchmark
         new Runner(opt).run();
     }
 
+    // @Benchmark
+    // @BenchmarkMode(Mode.AverageTime)
+    // @Fork(value = 2/* , jvmArgs = {"-Xms2G", "-Xmx2G"} */)
     public static void blank()
     {
         // Intentionally left empty.

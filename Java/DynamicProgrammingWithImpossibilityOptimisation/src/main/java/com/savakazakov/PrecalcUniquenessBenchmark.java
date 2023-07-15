@@ -1,27 +1,28 @@
 package com.savakazakov;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.infra.Blackhole;
+// import org.openjdk.jmh.infra.Blackhole;
+import org.openjdk.jmh.infra.IterationParams;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
-@Warmup(iterations = 2)
-@Measurement(iterations = 3)
-@Threads(4)
-@Fork(value = 2/* , jvmArgs = {"-Xms2G", "-Xmx2G"} */)
+@Warmup(iterations = 2, time = 1, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 3, time = 1, timeUnit = TimeUnit.SECONDS)
+@Threads(12)
+@Fork(value = 3/* , jvmArgs = {"-Xms2G", "-Xmx2G"} */)
 @State(Scope.Benchmark)
 public class PrecalcUniquenessBenchmark
 {
+    // Introduce so arbitrary random seeds.
+    @Param({"3278", "1029", "4444", "7174", "9919", "6130"})
+    int randomSeed;
+
     // Testing configurations.
     public int size = 5;
     public int[][] rotIndices;
@@ -29,13 +30,10 @@ public class PrecalcUniquenessBenchmark
     public int numOfGrids = 1000000;
 
     @Setup(Level.Trial)
-    public void up()
+    public void up(IterationParams  params)
     {
-        // Set the seed value.
-        long seed = 12345;
-
-        // Create a Random object with the specified seed
-        Random random = new Random(seed);
+        // Create a Random object with the specified seed.
+        Random random = new Random(randomSeed);
 
         rotIndices = rotIndices(size);
 
@@ -62,7 +60,7 @@ public class PrecalcUniquenessBenchmark
 
         for (int i = 0; i < numOfGrids; i++)
         {
-            if(chkUnique(grids[0], grids[i]))
+            if (chkUnique(grids[0], grids[i]))
                 count++;
         }
 
@@ -77,7 +75,7 @@ public class PrecalcUniquenessBenchmark
         
         for (int i = 0; i < numOfGrids; i++)
         {
-            if(precalcChkUnique(grids[0], grids[i]))
+            if (precalcChkUnique(grids[0], grids[i]))
                 count++;
         }
 
@@ -92,7 +90,7 @@ public class PrecalcUniquenessBenchmark
         
         for (int i = 0; i < numOfGrids; i++)
         {
-            if(precalcChkUniqueEnhanced(grids[0], grids[i]))
+            if (precalcChkUniqueEnhanced(grids[0], grids[i]))
                 count++;
         }
 
@@ -107,7 +105,7 @@ public class PrecalcUniquenessBenchmark
         
         for (int i = 0; i < numOfGrids; i++)
         {
-            if(precalcChkUniqueFinal(grids[0], grids[i]))
+            if (precalcChkUniqueFinal(grids[0], grids[i]))
                 count++;
         }
 

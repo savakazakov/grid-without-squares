@@ -10,45 +10,49 @@ import java.util.HashMap;
  * @Note For full explanation of the problem please refer to the README.md file.
  * @Note I'm assuming that the element of interest (EOI) is "O". I.e., no 4 "O"s can to form a square.
  * @Note An "O" corresponds to a boolean value of true.
- * 
- * TODO: Make sure all methods are safe and I do parameter checking.
- * TODO: Thread Pools
- * TODO: Check assumption for paths in the grid
- * TODO: Optimise Java
- * TODO: Test again with globals.
  */
 public class GridWithoutSquares
 {
     public static final int size = 6;
+    public static final int seqSize = 7;
     public static final int times = 10;
+    public static int[][] symmetryIndices = genSymmetryIndices(size);
+    public static final boolean printAll = false;
+    public static final boolean measurePerformance = false;
 
     public static void main(String[] args)
     {
-        List<boolean[]> solutions = null;
-
-        // Time the method.
-        long startTime = System.nanoTime();
-
-        for (int i = 0; i < times; i++)
+        if (measurePerformance)
         {
+            List<boolean[]> solutions = null;
+    
+            // Time the method.
+            long startTime = System.nanoTime();
+    
+            for (int i = 0; i < times; i++)
+            {
+                solutions = genSol(size);
+            }
+    
             solutions = genSol(size);
+            printSolution(solutions.get(0));
+            
+            long endTime = System.nanoTime();
+    
+            long total = (endTime - startTime) / times;
+    
+            System.out.println("Testing: N = " + size + ", " + times + " times");
+            System.out.println("Average performance: " + total / 1000000 + " ms, (" + total / 1000 + " us)");
         }
-
-        solutions = genSol(size);
-        printSolution(solutions.get(0));
-        
-        long endTime = System.nanoTime();
-
-        long total = (endTime - startTime) / times;
-
-        System.out.println("Testing: N = " + size + ", " + times + " times");
-        System.out.println("Average performance: " + total / 1000000 + " ms, (" + total / 1000 + " us)");
-
-        // gridWithoutSquaresSequence(6);
+        else
+        {
+            gridWithoutSquaresSequence(seqSize);
+        }
     }
 
     /**
-     * TODO: Finish this.
+     * Print the sequence of solutions to the Grid Without Sqaures problem.
+     * @param maxSize - The upper limit of the grid size to be printed.
      */
     public static void gridWithoutSquaresSequence(int maxSize)
     {
@@ -56,6 +60,9 @@ public class GridWithoutSquares
 
         for (int i = 2; i <= maxSize; i++)
         {
+            // Recalculate the indices for the new size.
+            symmetryIndices = genSymmetryIndices(i);
+
             // Generate the solutions.
             List<boolean[]> solutions = genSol(i);
 
@@ -75,13 +82,18 @@ public class GridWithoutSquares
             // Print the ratio.
             System.out.println("Ratio: " + numOfEOI + " / " + i * i + " (" + (double) numOfEOI / (i * i) + ")");
 
-            // Print the first solution.
-            printSolution(sol);
-
-            // Print all solutions.
-            for ( boolean[] solution : solutions)
+            if (printAll)
             {
-                printSolution(solution);
+                // Print all solutions.
+                for ( boolean[] solution : solutions)
+                {
+                    printSolution(solution);
+                }
+            }
+            else
+            {
+                // Print the first solution.
+                printSolution(sol);
             }
 
             // Print how many unique solutions there are.
@@ -91,7 +103,7 @@ public class GridWithoutSquares
     }
 
     /**
-     * Generate a list of 1D flattened arrays, which are solutions for the 
+     * Generate a list of 1D flattened grids, which are solutions for the 
      * "Grid Without Squares" problem for a given size. This integrates the validation
      * of the solution in the generation process.
      * 
@@ -112,7 +124,7 @@ public class GridWithoutSquares
 
     /**
      * An almost Tail Recursive algorithm, invoked by the genSol method (Middle recursion in reality).
-     * @param ctr - The current index in the 1D flattened accumulator array.
+     * @param ctr - The current index in the 1D flattened accumulator grid.
      * @param curElm - The current number of EOIs.
      * @param maxElm - The current maximum number of EOIs for a complete solution.
      * @param cand - The accumulator candidate.
@@ -136,7 +148,7 @@ public class GridWithoutSquares
             }
             else if (curElm == maxElm.val)
             {
-                if (sol.stream().allMatch(x -> chkUnique(x, cand)))
+                if (sol.stream().allMatch(x -> chkUnique(symmetryIndices, x, cand)))
                     sol.add(cand.clone());
             }
 
@@ -225,7 +237,7 @@ public class GridWithoutSquares
     /**
      * Print the solution as on the console. Where "O" is the EOI.
      * I.e. no 4 elements are the vertices of a square.
-     * @param solution - The 1D flattened array that stores the solution.
+     * @param solution - The 1D flattened grid that stores the solution.
      */
     public static void printSolution(boolean[] sol)
     {
@@ -251,99 +263,72 @@ public class GridWithoutSquares
     }
 
     /**
-     * Method overload of chkIdent(boolean[][], boolean[][]).
-     * Check if two 1D flattened arrays are not identical.
-     * @Note This assumes the 1D arrays are of the same dimensions.
-     * @param sol - The proposed solution.
-     * @param cand - The candidate.
-     * @return - True if not identical and false otherwise.
+     * Generate the symmetrical indices under the 8 symmetries of a square for a 1D flattened 
+     * @param size - The size of the grid.
+     * @return - A 2D array of integers, where the integer at each cell is the translated index
+     * of the symmetry (first dimension) and the normal flattened index (second dimension).
      */
-    public static boolean chkIdent(boolean[] sol, boolean[] cand)
+    public static int[][] genSymmetryIndices(int size)
     {
-        for (int i = 0; i < sol.length; i++)
+        int[][] symmetryIndices = new int[8][size * size];
+
+        for (int i = 0; i < size * size; i++)
         {
-            if (sol[i] != cand[i])
-                return true;
+            // Identical Symmetry (0 degrees rotation)
+            symmetryIndices[0][i] = i;
+
+            // 90 Degrees Rotation (Counterclockwise)
+            symmetryIndices[1][i] = (size - 1 - i % size) * size + i / size;
+
+            // 180 Degrees Rotation
+            symmetryIndices[2][i] = size * size - i - 1;
+
+            // 270 Degrees Rotation
+            symmetryIndices[3][i] = (i % size) * size + size - 1 - i / size;
+
+            // Horizontal Mirror Image (Reflection)
+            symmetryIndices[4][i] = (i / size) * size + size - 1 - (i % size);
+
+            // Vertical Mirror Image (Reflection)
+            symmetryIndices[5][i] = (size - 1 - i / size) * size + i % size;
+
+            // Main Diagonal Reflection
+            symmetryIndices[6][i] = (i % size) * size + i / size;
+
+            // Anti-Diagonal Reflection
+            symmetryIndices[7][i] = (size - 1 - i % size) * size + size - 1 - i / size;
+
         }
 
-        return false;
+        return symmetryIndices;
     }
 
     /**
-     * Method overload of chkIdentHor(boolean[][], boolean[][]).
-     * Check if two 1D flattened arrays not identical, i.e., if the second is flipped horizontally.
-     * @Note This assumes the 1D arrays are of the same dimensions.
-     * @param sol - The proposed solution.
-     * @param cand - The candidate.
-     * @return - True if not identical and false otherwise.
-     */
-    public static boolean chkIdentHor(boolean[] sol, boolean[] cand)
-    {
-        int size = (int) Math.sqrt(sol.length);
-
-        for (int i = 0; i < sol.length; i++)
-        {
-            if (sol[i] != cand[size - 1 - (i % size) + (i / size) * size])
-                return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Method overload of chkIdentVert(boolean[][], boolean[][]).
-     * Check if two 1D flattened arrays not identical, i.e., if the second is flipped vertically.
-     * @Note This assumes the 1D arrays are of the same dimensions.
-     * @param sol - The proposed solution.
-     * @param cand - The candidate.
-     * @return - True if not identical and false otherwise.
-     */
-    public static boolean chkIdentVert(boolean[] sol, boolean[] cand)
-    {
-        int size = (int) Math.sqrt(sol.length);
-
-        for (int i = 0; i < sol.length; i++)
-        {
-            for (int j = 0; j < sol.length; j++)
-            {
-                if (sol[i] != cand[(size - 1 - i / size) * size + (i % size)])
-                    return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Method overload of chkIdentDiag(boolean[][], boolean[][]).
-     * Check if two 1D flattened arrays not identical, i.e., if the second flipped along the diagonal.
-     * @Note This assumes the 1D arrays are of the same dimensions.
-     * @param sol - The proposed solution.
-     * @param cand - The candidate.
-     * @return - True if not identical and false otherwise.
-     */
-    public static boolean chkIdentDiag(boolean[] sol, boolean[] cand)
-    {        
-        for (int i = 0; i < sol.length; i++)
-        {
-            if (sol[i] != cand[sol.length - i - 1])
-                return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Check if two 1D arrays are unique.
-     * This means the second is not a flipped or rotated version of the first.
-     * @Note This assumes the 1D arrays are of the same dimensions.
+     * Check if two 1D flattened grids are unique.
+     * I.e. check if the first is not a symmetrically equivalent solution, given the 8 symmetries of a square.
+     * @param symmetryIndices - The precalculated indices for the 8 symmetries.
      * @param sol - The proposed solution.
      * @param cand - The candidate.
      * @return - True if unique and false otherwise.
      */
-    public static boolean chkUnique(boolean[] sol, boolean[] cand)
+    public static boolean chkUnique(int[][] symmetryIndices, boolean[] sol, boolean[] cand)
     {
-        return (chkIdent(sol, cand) && chkIdentHor(sol, cand) && chkIdentVert(sol, cand) && chkIdentDiag(sol, cand));
+        List<Boolean> symmetries = new ArrayList<>(List.of(false, false, false, false, false, false, false, false));
+
+        for (int i = 0; i < sol.length; i++)
+        {
+            for (int j = 0; j < 8; j++)
+            {
+                if (sol[i] != cand[symmetryIndices[j][i]])
+                    symmetries.set(j, true);
+            }
+
+            // If all symmetries are satisfied, exit immediately.
+            if (!symmetries.contains(false))
+                return true;
+        }
+
+        return false;
     }
 
     /**
