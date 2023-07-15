@@ -62,15 +62,18 @@ With that I've slightly rephrased the original question:
 1. ~~Make sure all methods are safe and I do parameter checking.~~
 2. Implement concurrency using Thread Pools.
 3. Check assumption for paths in the grid. Clarification: I've noticed that for a lot of solutions there is a graph of orthogonally connected EOIs (that connects all EOIs), if this is somehow intrinsically true as a result of the nature of the problem, then this could be the crack in the problem that makes it possible to go beyond the results, described in the original problem. (https://oeis.org/A227133)
-4. Optimise my Java code.
-5. Test again with global variables and stop passing them through the stack frames.
-6. Calculate a hashmap for the uniqueness check.
-    a. The idea is to precalculate the rotated indecies so as not to calculate them all of the time.
-7. Encode the grid with an Integer/BitSet/BigInteger.
-    a. On a second note a flattened boolean[] seems to be the most time efficient solution.
+4. ~~Optimise my Java code. (too vague)~~
+5. ~~Test again with global variables and stop passing them through the stack frames. (it doesn't really improve much, but you sacrifice~~
+~~a lot of readability).~~
+6. ~~Calculate a hashmap for the uniqueness check.~~
+    a. ~~The idea is to precalculate the rotated indecies so as not to calculate them all of the time.~~
+7. ~~Encode the grid with an Integer/BitSet/BigInteger.~~
+    a. ~~On a second note a flattened boolean[] seems to be the most time efficient solution.~~
     b. Test anyways.
-8. Read all examples from https://github.com/openjdk/jmh/blob/master/jmh-samples/src/main/java/org/openjdk/jmh/samples/JMHSample_07_FixtureLevelInvocation.java and finish the TemplateBenchmark documentation of JMH.
-9. Add all symmetries of a square.
+8. ~~Read all examples from https://github.com/openjdk/jmh/blob/master/jmh-samples/src/main/java/org/openjdk/jmh/samples/JMHSample_07_FixtureLevelInvocation.java and finish the TemplateBenchmark documentation of JMH.~~
+9. ~~Add all symmetries of a square.~~
+10. ~~Introduce the Fork index in the Benchmark Setup. (There is no such thing, and it defeats the purpose of the fork)~~
+11. Read the rest of the JMH examples. Currently at 22.
 
 ## **NOTES:**
 

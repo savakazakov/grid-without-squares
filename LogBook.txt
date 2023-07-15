@@ -95,3 +95,48 @@ Tests:
         c. Analysis: Now the results are a little more heterogeneous and closer to the simulation at hand. It can be seen that
         precalcChkUniqueEnhanced is still best, although in not every scenario.
         d. I'll use precalcChkUniqueEnhanced() in the main solution.
+    6. Testing if pre-calculation of the indices for uniqueness checking is more efficient.
+        a. Test description: Same as test 5 but using JMH properly with the following settings:
+            i.    (JMH) Metric is microseconds - @OutputTimeUnit(TimeUnit.MICROSECONDS)
+            ii.   (JMH) Number of warmups - @Warmup(iterations = 2, time = 1, timeUnit = TimeUnit.SECONDS)
+            iii.  (JMH) Number of measurements - @Measurement(iterations = 3, time = 1, timeUnit = TimeUnit.SECONDS)
+            iv.   (JMH) Number of threads - @Threads(12)
+            v.    (JMH) Number of forks - @Fork(value = 3/* , jvmArgs = {"-Xms2G", "-Xmx2G"} */)
+            vi.   (JMH) Scope - @State(Scope.Benchmark)
+            vii.  (JMH) Random seeds - @Param({"3278", "1029", "4444", "7174", "9919", "6130"})
+            viii. Grid size - 5
+            ix.   Number of grids to compare per test - 1000000;
+        b. Results:
+            Benchmark                                               (randomSeed)  Mode  Cnt       Score       Error  Units
+            PrecalcUniquenessBenchmark.runChkUnique                         3278  avgt    9   45969.883 ± 17305.705  us/op
+            PrecalcUniquenessBenchmark.runChkUnique                         1029  avgt    9   44437.039 ± 25271.028  us/op
+            PrecalcUniquenessBenchmark.runChkUnique                         4444  avgt    9  236921.507 ± 17298.704  us/op
+            PrecalcUniquenessBenchmark.runChkUnique                         7174  avgt    9  262449.495 ± 24332.156  us/op
+            PrecalcUniquenessBenchmark.runChkUnique                         9919  avgt    9   40560.079 ±  2370.922  us/op
+            PrecalcUniquenessBenchmark.runChkUnique                         6130  avgt    9   45839.272 ±  8087.265  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUnique                  3278  avgt    9   21660.441 ±  3285.896  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUnique                  1029  avgt    9   24067.363 ±  7568.485  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUnique                  4444  avgt    9   38724.291 ± 18851.995  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUnique                  7174  avgt    9   41247.594 ±  9763.493  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUnique                  9919  avgt    9   32410.090 ±  9367.303  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUnique                  6130  avgt    9   30045.091 ±  7548.175  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueEnhanced          3278  avgt    9   27744.976 ±  1822.396  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueEnhanced          1029  avgt    9   29165.490 ± 12048.059  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueEnhanced          4444  avgt    9   40248.963 ±  6648.909  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueEnhanced          7174  avgt    9   37151.788 ±  1294.491  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueEnhanced          9919  avgt    9   30172.463 ±  5751.990  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueEnhanced          6130  avgt    9   26922.969 ±  6201.707  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueFinal             3278  avgt    9  120904.713 ± 31338.125  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueFinal             1029  avgt    9  131625.489 ± 40112.874  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueFinal             4444  avgt    9  112749.458 ± 22079.709  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueFinal             7174  avgt    9  107337.064 ± 15284.154  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueFinal             9919  avgt    9   91896.999 ±  7023.310  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueFinal             6130  avgt    9   96835.633 ±  3850.387  us/op
+        c. Analysis: Now the results are pretty standardised and avoid a lot of common pitfalls and closer to the simulation
+        at hand. There is a shift in the first place as it seems that for some parameters (first 3) the plain precalculation
+        algorithm is better.
+            i.  PrecalcUniquenessBenchmark.runPrecalcChkUnique:
+                Average: (21660.441 + 24067.363 + 38724.291 + 41247.594 + 32410.090 + 30045.091) / 6 = 31859.563 us/op
+            ii. PrecalcUniquenessBenchmark.runPrecalcChkUniqueEnhanced:
+                Average: (27744.976 + 29165.490 + 40248.963 + 37151.788 + 30172.463 + 26922.969) / 6 = 32065.649 us/op
+        d. As a result I'll integrate precalcChkUnique and move on with this standardised testing frame bed.
