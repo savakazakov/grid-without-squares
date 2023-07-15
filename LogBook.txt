@@ -16,17 +16,127 @@ Tests:
             x. Test 10 for maxElm as Object - 606ms on Average over 10 calls.
         c. Analysis: Having maxElm as an int and returning it results in an average call duration of 648.8ms over 50 calls, 
         whereas having it as an Object results in an average call duration of 601.2ms.
-        d. Conclusion: Having it as an int is about 8% slower, therefore having it as an Object is prefered.
+        d. Conclusion: Having it as an int is about 8% slower, therefore having it as an Object is preferred.
     2. Testing if it is better two have the recursion aggregates as global variables.
         a. Test description: I'm using the same 10 consecutive getSol() calls and I measure the average time spent for each case.
         b. Results:
             i. Test 1 with passing local variables: 650ms, 664ms, 642ms, 670ms, 647ms (654.6 average)
             ii. Test 2 with global variables: 679ms, 700ms, 713ms, 657ms, 683ms (686.4 average)
-        Conclusion: It might be better to have local variables, but it might be due to the stress in the system at different times.
+        c. Conclusion: It might be better to have local variables, but it might be due to the stress in the system at different times.
     3. Testing C++ translation of the Java program, against the Java solution.
         a. Test description: I'm using the same 10 consecutive getSol() calls and I measure the average time spent for each case
         with a problem of size N = 4.
+        b. Results:
             i. Test 1 average time spent is 289 ms for C++.
             ii. Test 2 average time spent is 15 ms for Java.
             iii. Test 3 average time spent is 38 ms for C++ compiled with -O3 flag.
             iv. Test 4 average time spent is 3 ms for Java after possibility optimisation.
+        c. Conclusion: For now, I'll stick with Java as I have little experience with optimising C++ code.
+    4. Testing if pre-calculation of the indices for uniqueness checking is more efficient.
+        a. Test description: I've created a separate file that uses reflection to quickly test different method implementations. For this
+        test I'm calculating the indices for the horizontally, vertically, and diagonally reflected grids. I'm generating 5 5x5 grids and
+        checking the uniqueness of each against the first one. I'm doing it 10000000 times, so that the time scale has a significant
+        difference. I'm going to be running the test 3 times.
+        b. Results:
+            i.  Testing chkUnique: N = 5, 10000000 times
+                Performance: 12700 ms, (12700354 us)
+                Testing precalcChkUnique: N = 5, 10000000 times
+                Performance: 1993 ms, (1993637 us)
+                Testing precalcChkUniqueEnhanced: N = 5, 10000000 times
+                Performance: 1993 ms, (1993316 us)
+                Testing precalcChkUniqueFinal: N = 5, 10000000 times
+                Performance: 2308 ms, (2308942 us)
+            ii. Testing chkUnique: N = 5, 10000000 times
+                Performance: 2899 ms, (2899755 us)
+                Testing precalcChkUnique: N = 5, 10000000 times
+                Performance: 1861 ms, (1861729 us)
+                Testing precalcChkUniqueEnhanced: N = 5, 10000000 times
+                Performance: 1537 ms, (1537407 us)
+                Testing precalcChkUniqueFinal: N = 5, 10000000 times
+                Performance: 1960 ms, (1960857 us)
+            iii.Testing chkUnique: N = 5, 10000000 times
+                Performance: 3751 ms, (3751882 us)
+                Testing precalcChkUnique: N = 5, 10000000 times
+                Performance: 1659 ms, (1659126 us)
+                Testing precalcChkUniqueEnhanced: N = 5, 10000000 times
+                Performance: 1659 ms, (1659086 us)
+                Testing precalcChkUniqueFinal: N = 5, 10000000 times
+                Performance: 2524 ms, (2524996 us)
+        c. Analysis: The testing configuration might not be the best, but most of the time precalcChkUniqueEnhanced performs best and
+        and several times better than the original algorithm.
+        d. Conclusion: I'll integrate it with the latest solution then, move onto the HCA approach
+    5. Testing if pre-calculation of the indices for uniqueness checking is more efficient.
+        a. Test description: Same as test 4 but increase the number of grids to compare and decrease the number of times to do them.
+        b. Results:
+            i.  Testing chkUnique: N = 5, 1000 times, 10000 number of grids.
+                Performance: 2931 ms, (2931066 us)
+                Testing precalcChkUnique: N = 5, 1000 times, 10000 number of grids.
+                Performance: 296 ms, (296328 us)
+                Testing precalcChkUniqueEnhanced: N = 5, 1000 times, 10000 number of grids.
+                Performance: 310 ms, (310738 us)
+                Testing precalcChkUniqueFinal: N = 5, 1000 times, 10000 number of grids.
+                Performance: 407 ms, (407986 us)
+            ii. Testing chkUnique: N = 5, 1000 times, 10000 number of grids.
+                Performance: 280 ms, (280360 us)
+                Testing precalcChkUnique: N = 5, 1000 times, 10000 number of grids.
+                Performance: 236 ms, (236267 us)
+                Testing precalcChkUniqueEnhanced: N = 5, 1000 times, 10000 number of grids.
+                Performance: 197 ms, (197293 us)
+                Testing precalcChkUniqueFinal: N = 5, 1000 times, 10000 number of grids.
+                Performance: 227 ms, (227627 us)
+            iii.Testing chkUnique: N = 5, 1000 times, 10000 number of grids.
+                Performance: 1277 ms, (1277770 us)
+                Testing precalcChkUnique: N = 5, 1000 times, 10000 number of grids.
+                Performance: 317 ms, (317732 us)
+                Testing precalcChkUniqueEnhanced: N = 5, 1000 times, 10000 number of grids.
+                Performance: 248 ms, (248357 us)
+                Testing precalcChkUniqueFinal: N = 5, 1000 times, 10000 number of grids.
+                Performance: 395 ms, (395440 us)
+        c. Analysis: Now the results are a little more heterogeneous and closer to the simulation at hand. It can be seen that
+        precalcChkUniqueEnhanced is still best, although in not every scenario.
+        d. I'll use precalcChkUniqueEnhanced() in the main solution.
+    6. Testing if pre-calculation of the indices for uniqueness checking is more efficient.
+        a. Test description: Same as test 5 but using JMH properly with the following settings:
+            i.    (JMH) Metric is microseconds - @OutputTimeUnit(TimeUnit.MICROSECONDS)
+            ii.   (JMH) Number of warmups - @Warmup(iterations = 2, time = 1, timeUnit = TimeUnit.SECONDS)
+            iii.  (JMH) Number of measurements - @Measurement(iterations = 3, time = 1, timeUnit = TimeUnit.SECONDS)
+            iv.   (JMH) Number of threads - @Threads(12)
+            v.    (JMH) Number of forks - @Fork(value = 3/* , jvmArgs = {"-Xms2G", "-Xmx2G"} */)
+            vi.   (JMH) Scope - @State(Scope.Benchmark)
+            vii.  (JMH) Random seeds - @Param({"3278", "1029", "4444", "7174", "9919", "6130"})
+            viii. Grid size - 5
+            ix.   Number of grids to compare per test - 1000000;
+        b. Results:
+            Benchmark                                               (randomSeed)  Mode  Cnt       Score       Error  Units
+            PrecalcUniquenessBenchmark.runChkUnique                         3278  avgt    9   45969.883 ± 17305.705  us/op
+            PrecalcUniquenessBenchmark.runChkUnique                         1029  avgt    9   44437.039 ± 25271.028  us/op
+            PrecalcUniquenessBenchmark.runChkUnique                         4444  avgt    9  236921.507 ± 17298.704  us/op
+            PrecalcUniquenessBenchmark.runChkUnique                         7174  avgt    9  262449.495 ± 24332.156  us/op
+            PrecalcUniquenessBenchmark.runChkUnique                         9919  avgt    9   40560.079 ±  2370.922  us/op
+            PrecalcUniquenessBenchmark.runChkUnique                         6130  avgt    9   45839.272 ±  8087.265  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUnique                  3278  avgt    9   21660.441 ±  3285.896  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUnique                  1029  avgt    9   24067.363 ±  7568.485  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUnique                  4444  avgt    9   38724.291 ± 18851.995  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUnique                  7174  avgt    9   41247.594 ±  9763.493  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUnique                  9919  avgt    9   32410.090 ±  9367.303  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUnique                  6130  avgt    9   30045.091 ±  7548.175  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueEnhanced          3278  avgt    9   27744.976 ±  1822.396  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueEnhanced          1029  avgt    9   29165.490 ± 12048.059  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueEnhanced          4444  avgt    9   40248.963 ±  6648.909  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueEnhanced          7174  avgt    9   37151.788 ±  1294.491  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueEnhanced          9919  avgt    9   30172.463 ±  5751.990  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueEnhanced          6130  avgt    9   26922.969 ±  6201.707  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueFinal             3278  avgt    9  120904.713 ± 31338.125  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueFinal             1029  avgt    9  131625.489 ± 40112.874  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueFinal             4444  avgt    9  112749.458 ± 22079.709  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueFinal             7174  avgt    9  107337.064 ± 15284.154  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueFinal             9919  avgt    9   91896.999 ±  7023.310  us/op
+            PrecalcUniquenessBenchmark.runPrecalcChkUniqueFinal             6130  avgt    9   96835.633 ±  3850.387  us/op
+        c. Analysis: Now the results are pretty standardised and avoid a lot of common pitfalls and closer to the simulation
+        at hand. There is a shift in the first place as it seems that for some parameters (first 3) the plain precalculation
+        algorithm is better.
+            i.  PrecalcUniquenessBenchmark.runPrecalcChkUnique:
+                Average: (21660.441 + 24067.363 + 38724.291 + 41247.594 + 32410.090 + 30045.091) / 6 = 31859.563 us/op
+            ii. PrecalcUniquenessBenchmark.runPrecalcChkUniqueEnhanced:
+                Average: (27744.976 + 29165.490 + 40248.963 + 37151.788 + 30172.463 + 26922.969) / 6 = 32065.649 us/op
+        d. As a result I'll integrate precalcChkUnique and move on with this standardised testing frame bed.

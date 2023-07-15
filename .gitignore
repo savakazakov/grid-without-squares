@@ -23,20 +23,23 @@
 hs_err_pid*
 replay_pid*
 
-.eunit
-*.o
-*.beam
-*.plt
-erl_crash.dump
-.concrete/DEV_MODE
+# Maven target directory
+target/
 
-# rebar 2.x
-.rebar
-rel/example_project
-ebin/*.beam
-deps
+# IDE files
+.idea/
+*.iml
+*.ipr
+*.iws
 
-# rebar 3
-.rebar3
-_build/
-_checkouts/
+# Maven files
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+# https://github.com/takari/maven-wrapper#usage-without-binary-jar
+.mvn/wrapper/maven-wrapper.jar
